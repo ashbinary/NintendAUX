@@ -175,4 +175,10 @@ public struct BWAVFile
         }
     }
 
+    public BWAVFile(byte[] data)
+    {
+        FileReader fileReader = new(new MemoryStream(data));
+        this = new BWAVFile(ref fileReader);
+    }
+
 }

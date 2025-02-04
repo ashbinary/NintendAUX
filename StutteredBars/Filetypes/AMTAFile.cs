@@ -1,5 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Microsoft.VisualBasic;
+using StutteredBars.Filetypes.AMTA;
 using StutteredBars.Helpers;
 
 namespace StutteredBars.Filetypes;
@@ -7,7 +9,7 @@ namespace StutteredBars.Filetypes;
 public struct AMTAFile
 {
     [StructLayout(LayoutKind.Sequential, Size = 49)]
-    public struct AMTAData
+    public struct AMTAInfo
     {
         public uint Magic;
         public ushort Endianness;
@@ -39,35 +41,29 @@ public struct AMTAFile
         public byte Flags;
     }
 
-    public struct AMTAReserve // Obviously not actually the name but idc
-    {
-        public uint Reserve0;
-        public float Reserve1;
-        public float Reserve2;
-        public float Reserve3;
-        public float Reserve4;
-        public ushort PointCount;
-        public ushort Reserve6;
-    }
-
     private long BaseAddress;
+    private long InfoSize;
+
+    public AMTAInfo Info;
+    public AmtaSourceInfo[] SourceInfo;
 
     public AMTAData Data;
-    public AmtaSourceInfo[] SourceInfo;
-    public AMTAReserve Reserve;
+    public AMTAMarkerTable MarkerTable;
+    public MINFFile Minf;
+
     public string Path;
 
     public AMTAFile(ref FileReader amtaReader)
     {
         BaseAddress = amtaReader.Position;
         
-        Data = MemoryMarshal.AsRef<AMTAData>(
-            amtaReader.ReadBytes(Unsafe.SizeOf<AMTAData>())
+        Info = MemoryMarshal.AsRef<AMTAInfo>(
+            amtaReader.ReadBytes(Unsafe.SizeOf<AMTAInfo>())
         );
 
-        SourceInfo = new AmtaSourceInfo[Data.SourceCount];
+        SourceInfo = new AmtaSourceInfo[Info.SourceCount];
         
-        for (int i = 0; i < Data.SourceCount; i++)
+        for (int i = 0; i < Info.SourceCount; i++)
         {
             SourceInfo[i].ChannelCount = amtaReader.ReadByte();
             SourceInfo[i].ChannelInfo = new AmtaChannelInfo[SourceInfo[i].ChannelCount];
@@ -80,11 +76,37 @@ public struct AMTAFile
             }
         }
 
-        Reserve = MemoryMarshal.AsRef<AMTAReserve>(
-            amtaReader.ReadBytes(Unsafe.SizeOf<AMTAReserve>())
-        );
+        InfoSize = amtaReader.Position - BaseAddress;
 
-        Path = amtaReader.ReadTerminatedStringAt(BaseAddress + 36 + Data.PathOffset);
+        if (Info.DataOffset != 0)
+        {
+            amtaReader.Position = BaseAddress + Info.DataOffset;
+            Data = MemoryMarshal.AsRef<AMTAData>(
+                amtaReader.ReadBytes(Unsafe.SizeOf<AMTAData>())
+            );
+        }
 
+        if (Info.MarkerOffset != 0)
+        {
+            amtaReader.Position = BaseAddress + Info.MarkerOffset;
+            Console.WriteLine("Found Marker offset");
+            MarkerTable = new AMTAMarkerTable(ref amtaReader);
+        }
+
+        if (Info.MinfOffset != 0)
+        {
+            amtaReader.Position = BaseAddress + Info.MinfOffset;
+            Console.WriteLine("Found MINF offset");
+            Minf = new MINFFile(ref amtaReader);
+        }
+
+        Path = amtaReader.ReadTerminatedStringAt(BaseAddress + 36 + Info.PathOffset);
+
+    }
+
+    public AMTAFile(byte[] data)
+    {
+        FileReader barsReader = new(new MemoryStream(data));
+        this = new AMTAFile(ref barsReader);
     }
 }

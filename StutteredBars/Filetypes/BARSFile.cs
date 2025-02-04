@@ -75,5 +75,5 @@ public struct BARSFile
             barsReader.Position = EntryArray[i].BwavOffset;
             Tracks[i] = new BWAVFile(ref barsReader);
         }
-    }   
+   }   
 }
