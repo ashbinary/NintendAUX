@@ -7,17 +7,17 @@ class Program
     public static void Main(string[] args)
     {
         BARSFile bars = new BARSFile(File.ReadAllBytes("BgmLobbyVersus.Product.920.bars"));
-        AMTAFile amta = new AMTAFile(File.ReadAllBytes("BGM_Versus_Fes_SAND_3Idol.bameta"));
+        AMTAFile amta = new AMTAFile(File.ReadAllBytes("BGM_LobbyVersus_Gambit_SquidSquad_04.bameta"));
         BWAVFile bwav = new BWAVFile(File.ReadAllBytes("BGM_Versus_Fes_SAND_3Idol.bwav"));
 
         foreach (AMTAFile amtaList in bars.Metadata)
         {
-            if (amtaList.Info.TagOffset != 0)
+            if (amtaList.Info.MarkerOffset != 0)
                 Console.WriteLine(amtaList.Path);         
         }
 
-        byte[] bwavSaved = BWAVFile.Save(bwav);
-        File.WriteAllBytes("BGM_Versus_Fes_SAND_3Idol_New.bwav", bwavSaved);
+        File.WriteAllBytes("BGM_Versus_Fes_SAND_3Idol_New.bwav", BWAVFile.Save(bwav));
+        File.WriteAllBytes("BGM_LobbyVersus_Gambit_SquidSquad_04_New.bameta", AMTAFile.Save(amta));
         Console.WriteLine("complete");
     }
 }

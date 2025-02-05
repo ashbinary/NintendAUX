@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks.Dataflow;
 using StutteredBars.Helpers;
 
 namespace StutteredBars.Filetypes.AMTA;
@@ -43,5 +45,22 @@ public struct AMTAMarkerTable
             fileReader.Position = FileBase + 8 + Markers[i].NameOffset;
             Markers[i].Name = fileReader.ReadTerminatedString();
         }
+    }
+
+    public static byte[] Save(AMTAMarkerTable markerTable)
+    {
+        using MemoryStream saveStream = new();
+        FileWriter amtaWriter = new FileWriter(saveStream);
+
+        amtaWriter.Write(markerTable.MarkerCount);
+        foreach (AMTAMarker marker in markerTable.Markers)
+        {
+            amtaWriter.Write(marker.ID);
+            amtaWriter.Write(marker.NameOffset);
+            amtaWriter.Write(marker.Start);
+            amtaWriter.Write(marker.Length);
+        }
+
+        return saveStream.ToArray();
     }
 }

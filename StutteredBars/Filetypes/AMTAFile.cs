@@ -77,8 +77,6 @@ public struct AMTAFile
             }
         }
 
-        InfoSize = amtaReader.Position - BaseAddress;
-
         if (Info.DataOffset != 0)
         {
             amtaReader.Position = BaseAddress + Info.DataOffset;
@@ -118,10 +116,32 @@ public struct AMTAFile
         this = new AMTAFile(ref barsReader);
     }
 
-    public byte[] Save(AMTAFile amtaData)
+    public static byte[] Save(AMTAFile amtaData)
     {
         using MemoryStream saveStream = new();
         FileWriter amtaWriter = new FileWriter(saveStream);
+
+        amtaWriter.Write(MemoryMarshal.AsBytes(new Span<AMTAInfo>(ref amtaData.Info)));
+        
+        foreach (AmtaSourceInfo sourceData in amtaData.SourceInfo)
+        {
+            amtaWriter.Write(sourceData.ChannelCount);
+            for (int j = 0; j < sourceData.ChannelInfo.Length; j++)
+                amtaWriter.Write(MemoryMarshal.AsBytes(new Span<AmtaChannelInfo>(ref sourceData.ChannelInfo[j])));
+        }
+
+        amtaWriter.Pad(2);
+
+        if (amtaData.Info.DataOffset != 0)
+        {
+            amtaWriter.Write(MemoryMarshal.AsBytes(new Span<AMTAData>(ref amtaData.Data)));
+        }
+
+        if (amtaData.Info.MarkerOffset != 0)
+        {
+            amtaWriter.Position = amtaData.Info.MarkerOffset;
+            amtaWriter.Write(AMTAMarkerTable.Save(amtaData.MarkerTable));
+        }
 
         return saveStream.ToArray();
     }
