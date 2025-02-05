@@ -10,12 +10,6 @@ class Program
         AMTAFile amta = new AMTAFile(File.ReadAllBytes("BGM_LobbyVersus_Gambit_SquidSquad_04.bameta"));
         BWAVFile bwav = new BWAVFile(File.ReadAllBytes("BGM_Versus_Fes_SAND_3Idol.bwav"));
 
-        foreach (AMTAFile amtaList in bars.Metadata)
-        {
-            if (amtaList.Info.MarkerOffset != 0)
-                Console.WriteLine(amtaList.Path);         
-        }
-
         File.WriteAllBytes("BGM_Versus_Fes_SAND_3Idol_New.bwav", BWAVFile.Save(bwav));
         File.WriteAllBytes("BGM_LobbyVersus_Gambit_SquidSquad_04_New.bameta", AMTAFile.Save(amta));
         Console.WriteLine("complete");

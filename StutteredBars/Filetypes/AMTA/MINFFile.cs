@@ -1,3 +1,4 @@
+using System.Data.Common;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using StutteredBars.Helpers;
@@ -148,11 +149,6 @@ public struct MINFFile
             minfReader.ReadBytes(Unsafe.SizeOf<MINFInfo>())
         );
 
-        if (Info.InstrumentInfoTableOffset != 0)
-        {
-            Console.WriteLine("oh my instrumentation");
-        }
-
         minfReader.Position = BaseAddress + Marshal.OffsetOf<MINFInfo>("Table0Offset") + Info.Table0Offset;
 
         Table0.EntryCount = minfReader.ReadUInt16();
@@ -254,9 +250,78 @@ public struct MINFFile
         {
             Console.WriteLine("MINF contains no instruments!");
         }
+    }
 
+    public static byte[] Save(MINFFile minfData)
+    {
+        // Table0.EntryCount = minfReader.ReadUInt16();
+        // Table0.Reserve0 = minfReader.ReadUInt16();
+        // Table0.Entries = new MINFTable0Entry[Table0.EntryCount];
+
+        // for (int i = 0; i < Table0.EntryCount; i++)
+        //     Table0.Entries[i] = MemoryMarshal.AsRef<MINFTable0Entry>(
+        //         minfReader.ReadBytes(Unsafe.SizeOf<MINFTable0Entry>())
+        //     );
+        using MemoryStream saveStream = new();
+        FileWriter minfWriter = new FileWriter(saveStream);
+
+        minfWriter.Write(MemoryMarshal.AsBytes(new Span<MINFInfo>(ref minfData.Info)));
+
+        minfWriter.Position = Marshal.OffsetOf<MINFInfo>("Table0Offset") + minfData.Info.Table0Offset;
+        minfWriter.Write(minfData.Table0.EntryCount);
+        minfWriter.Write(minfData.Table0.Reserve0);
+        for (int i = 0; i < minfData.Table0.EntryCount; i++)
+            minfWriter.Write(MemoryMarshal.AsBytes(new Span<MINFTable0Entry>(ref minfData.Table0.Entries[i])));
+
+        minfWriter.Position = Marshal.OffsetOf<MINFInfo>("Table1Offset") + minfData.Info.Table1Offset;
+        minfWriter.Write(minfData.Table1.EntryCount);
+        minfWriter.Write(minfData.Table1.Reserve0);
+        for (int i = 0; i < minfData.Table1.EntryCount; i++)
+            minfWriter.Write(MemoryMarshal.AsBytes(new Span<MINFTable1Entry>(ref minfData.Table1.Entries[i])));
+
+        minfWriter.Position = Marshal.OffsetOf<MINFInfo>("Table2Offset") + minfData.Info.Table2Offset;
+        minfWriter.Write(minfData.Table2.EntryCount);
+        minfWriter.Write(minfData.Table2.Reserve0);
+        for (int i = 0; i < minfData.Table2.EntryCount; i++)
+            minfWriter.Write(MemoryMarshal.AsBytes(new Span<MINFTable2Entry>(ref minfData.Table2.Entries[i])));
+
+        minfWriter.Position = Marshal.OffsetOf<MINFInfo>("PairTableOffset") + minfData.Info.PairTableOffset;
+        minfWriter.Write(minfData.PairTable.PairCount);
+        minfWriter.Write(minfData.PairTable.Reserve0);
+        for (int i = 0; i < minfData.PairTable.PairCount; i++)
+            minfWriter.Write(MemoryMarshal.AsBytes(new Span<MINFPair>(ref minfData.PairTable.Pairs[i])));
+
+        minfWriter.Position = Marshal.OffsetOf<MINFInfo>("OffsetTableOffset") + minfData.Info.OffsetTableOffset;
+        minfWriter.Write(minfData.OffsetTable.OffsetCount);
+        minfWriter.Write(minfData.OffsetTable.Reserve0);
+        for (int i = 0; i < minfData.OffsetTable.OffsetCount; i++)
+            minfWriter.Write(minfData.OffsetTable.Offsets[i]);
         
-        
+        minfWriter.Position = Marshal.OffsetOf<MINFInfo>("InstrumentInfoTableOffset") + minfData.Info.InstrumentInfoTableOffset;
+        minfWriter.Write(minfData.InstrumentTable.InstrumentCount);
+        minfWriter.Write(minfData.InstrumentTable.Reserve0);
+
+        for (int i = 0; i < minfData.InstrumentTable.InstrumentCount; i++)
+        {
+            minfWriter.Write(minfData.InstrumentTable.InstrumentInfo[i].Reserve0);
+            minfWriter.Write(minfData.InstrumentTable.InstrumentInfo[i].InstrumentOffset);
+
+            long instrumentPosition = minfWriter.Position;
+            minfWriter.Position = Marshal.OffsetOf<MINFInfo>("InstrumentInfoTableOffset") + minfData.Info.InstrumentInfoTableOffset + minfData.InstrumentTable.InstrumentInfo[i].InstrumentOffset;
+
+            minfWriter.Write(minfData.InstrumentTable.InstrumentInfo[i].Instrument.NameOffset);
+            minfWriter.Write(minfData.InstrumentTable.InstrumentInfo[i].Instrument.Reserve0);
+            minfWriter.Write(minfData.InstrumentTable.InstrumentInfo[i].Instrument.Reserve1);
+
+            for (int j = 0; j < minfData.InstrumentTable.InstrumentInfo[i].Instrument.Reserve0; j++)
+            {
+                minfWriter.Write(minfData.InstrumentTable.InstrumentInfo[i].Instrument.Reserve2[j]);
+            }
+
+            minfWriter.Position = instrumentPosition;
+        }
+
+        return saveStream.ToArray();
     }
 
     

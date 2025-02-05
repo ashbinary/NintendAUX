@@ -215,6 +215,7 @@ public struct BWAVFile
 
             bwavPosition = bwavWriter.Position;
 
+            // To-do: Support OPUS
             bwavWriter.Position = channelInfo.SamplesOffset;
             bwavWriter.Write(channelInfo.OSamples);
 

@@ -134,6 +134,7 @@ public struct AMTAFile
 
         if (amtaData.Info.DataOffset != 0)
         {
+            amtaWriter.Position = amtaData.Info.DataOffset;
             amtaWriter.Write(MemoryMarshal.AsBytes(new Span<AMTAData>(ref amtaData.Data)));
         }
 
@@ -141,6 +142,12 @@ public struct AMTAFile
         {
             amtaWriter.Position = amtaData.Info.MarkerOffset;
             amtaWriter.Write(AMTAMarkerTable.Save(amtaData.MarkerTable));
+        }
+
+        if (amtaData.Info.MinfOffset != 0)
+        {
+            amtaWriter.Position = amtaData.Info.MinfOffset;
+            amtaWriter.Write(MINFFile.Save(amtaData.Minf));
         }
 
         return saveStream.ToArray();
