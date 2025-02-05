@@ -50,6 +50,7 @@ public struct AMTAFile
     public AMTAData Data;
     public AMTAMarkerTable MarkerTable;
     public MINFFile Minf;
+    public AMTATagTable TagTable;
 
     public string Path;
 
@@ -100,6 +101,13 @@ public struct AMTAFile
             Minf = new MINFFile(ref amtaReader);
         }
 
+        if (Info.TagOffset != 0)
+        {
+            amtaReader.Position = BaseAddress + Info.TagOffset;
+            Console.WriteLine("Found Tag offset");
+            TagTable = new AMTATagTable(ref amtaReader);
+        }
+
         Path = amtaReader.ReadTerminatedStringAt(BaseAddress + 36 + Info.PathOffset);
 
     }
@@ -108,5 +116,13 @@ public struct AMTAFile
     {
         FileReader barsReader = new(new MemoryStream(data));
         this = new AMTAFile(ref barsReader);
+    }
+
+    public byte[] Save(AMTAFile amtaData)
+    {
+        using MemoryStream saveStream = new();
+        FileWriter amtaWriter = new FileWriter(saveStream);
+
+        return saveStream.ToArray();
     }
 }

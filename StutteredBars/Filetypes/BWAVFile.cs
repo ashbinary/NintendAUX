@@ -140,7 +140,7 @@ public struct BWAVFile
             if (ChannelInfoArray[i].Encoding == BwavEncoding.Adpcm)
             {
                 ChannelInfoArray[i].OSamples = new byte[ChannelInfoArray[i].AlignedSampleSize + ChannelInfoArray[i].UnalignedSampleSize];
-                bwavReader.Position = FileBase + ChannelInfoArray[i].SamplesOffset;
+                bwavReader.Position = ChannelInfoArray[i].SamplesOffset;
                 for (int x = 0; x < ChannelInfoArray[i].OSamples.Length; x++)
                     ChannelInfoArray[i].OSamples[x] = bwavReader.ReadByte();
             } 
@@ -179,6 +179,49 @@ public struct BWAVFile
     {
         FileReader fileReader = new(new MemoryStream(data));
         this = new BWAVFile(ref fileReader);
+    }
+
+    public static byte[] Save(BWAVFile bwavData)
+    {
+        using MemoryStream saveStream = new();
+        FileWriter bwavWriter = new FileWriter(saveStream);
+
+        bwavWriter.Write(MemoryMarshal.AsBytes(new Span<BwavHeader>(ref bwavData.Header)));
+
+        long bwavPosition = bwavWriter.Position;
+
+        foreach (ResBwavChannelInfo channelInfo in bwavData.ChannelInfoArray)
+        {
+            bwavWriter.Write((ushort)channelInfo.Encoding);
+            bwavWriter.Write(channelInfo.ChannelPan);
+            bwavWriter.Write(channelInfo.SampleRate);
+            bwavWriter.Write(channelInfo.NonPrefetchSampleCount);
+            bwavWriter.Write(channelInfo.SampleCount);
+            bwavWriter.Write(channelInfo.DspAdpcmCoefficients);
+            bwavWriter.Write(channelInfo.NonPrefetchSamplesOffset);
+            bwavWriter.Write(channelInfo.SamplesOffset);
+            bwavWriter.Write(channelInfo.LoopPointCount);
+            bwavWriter.Write(channelInfo.BaseLoopPoint);
+            bwavWriter.Write(channelInfo.LoopEnd);
+
+            foreach (ResBwavLoopPoint loopPoint in channelInfo.LoopPointArray)
+            {
+                bwavWriter.Write(loopPoint.LoopStart);
+                bwavWriter.Write(loopPoint.AdpcmPredictorScale);
+                foreach (short historyArray in loopPoint.AdpcmHistoryArray)
+                    bwavWriter.Write(historyArray);
+                bwavWriter.Write(loopPoint.Reserve0);
+            }
+
+            bwavPosition = bwavWriter.Position;
+
+            bwavWriter.Position = channelInfo.SamplesOffset;
+            bwavWriter.Write(channelInfo.OSamples);
+
+            bwavWriter.Position = bwavPosition;
+        }
+
+        return saveStream.ToArray();
     }
 
 }
