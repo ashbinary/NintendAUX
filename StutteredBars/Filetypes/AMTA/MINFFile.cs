@@ -74,11 +74,11 @@ public struct MINFFile
 
     public struct MINFInstrument
     {
-        public uint InstrumentNameOffset;
+        public uint NameOffset;
         public ushort Reserve0;
         public ushort Reserve1;
-        public uint Reserve2;
-        public string InstrumentName;
+        public uint[] Reserve2;
+        public string Name;
     }
 
     public struct MINFInstrumentInfo
@@ -217,7 +217,7 @@ public struct MINFFile
 
             for (int i = 0; i < InstrumentTable.InstrumentCount; i++)
             {
-                long InstrumentAddress = minfReader.Position;
+                long InstrumentTableAddress = minfReader.Position;
 
                 InstrumentTable.InstrumentInfo[i] = new MINFInstrumentInfo()
                 {
@@ -225,18 +225,22 @@ public struct MINFFile
                     InstrumentOffset = minfReader.ReadUInt32()
                 };
 
-                minfReader.Position = InstrumentAddress + 4 + InstrumentTable.InstrumentInfo[i].InstrumentOffset;
+                long InstrumentAddress = minfReader.Position;
+                minfReader.Position = InstrumentTableAddress + 4 + InstrumentTable.InstrumentInfo[i].InstrumentOffset;
                 
                 InstrumentTable.InstrumentInfo[i].Instrument = new MINFInstrument() 
                 {
-                    InstrumentNameOffset = minfReader.ReadUInt32(),
+                    NameOffset = minfReader.ReadUInt32(),
                     Reserve0 = minfReader.ReadUInt16(),
                     Reserve1 = minfReader.ReadUInt16(),
-                    Reserve2 = minfReader.ReadUInt32(),
                 };
 
-                minfReader.Position = InstrumentAddress + (8 * (i + 1));
+                InstrumentTable.InstrumentInfo[i].Instrument.Reserve2 = new uint[InstrumentTable.InstrumentInfo[i].Instrument.Reserve0];
 
+                for (int j = 0; j < InstrumentTable.InstrumentInfo[i].Instrument.Reserve0; j++)
+                    InstrumentTable.InstrumentInfo[i].Instrument.Reserve2[j] = minfReader.ReadUInt32();
+
+                minfReader.Position = InstrumentAddress;
                 
             }
 
