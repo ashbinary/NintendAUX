@@ -236,6 +236,11 @@ public struct MINFFile
                 for (int j = 0; j < InstrumentTable.InstrumentInfo[i].Instrument.Reserve0; j++)
                     InstrumentTable.InstrumentInfo[i].Instrument.Reserve2[j] = minfReader.ReadUInt32();
 
+                minfReader.Position = InstrumentTableAddress + 4 + InstrumentTable.InstrumentInfo[i].InstrumentOffset + InstrumentTable.InstrumentInfo[i].Instrument.NameOffset;
+                InstrumentTable.InstrumentInfo[i].Instrument.Name = minfReader.ReadTerminatedString();
+
+                Console.WriteLine($"Found {InstrumentTable.InstrumentInfo[i].Instrument.Name}");
+
                 minfReader.Position = InstrumentAddress;
                 
             }
@@ -245,10 +250,6 @@ public struct MINFFile
             //     minfReader.Position = BaseAddress + InstrumentTable.Instruments[i].InstrumentNameOffset;
             //     InstrumentTable.InstrumentInfo[i].InstrumentName = minfReader.ReadTerminatedString();
             // }
-        }
-        else
-        {
-            Console.WriteLine("MINF contains no instruments!");
         }
     }
 
@@ -317,6 +318,9 @@ public struct MINFFile
             {
                 minfWriter.Write(minfData.InstrumentTable.InstrumentInfo[i].Instrument.Reserve2[j]);
             }
+            
+            minfWriter.Position = instrumentPosition + 4 + minfData.InstrumentTable.InstrumentInfo[i].InstrumentOffset + minfData.InstrumentTable.InstrumentInfo[i].Instrument.NameOffset;
+            minfWriter.Write(minfData.InstrumentTable.InstrumentInfo[i].Instrument.Name);
 
             minfWriter.Position = instrumentPosition;
         }

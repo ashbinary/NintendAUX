@@ -88,21 +88,18 @@ public struct AMTAFile
         if (Info.MarkerOffset != 0)
         {
             amtaReader.Position = BaseAddress + Info.MarkerOffset;
-            Console.WriteLine("Found Marker offset");
             MarkerTable = new AMTAMarkerTable(ref amtaReader);
         }
 
         if (Info.MinfOffset != 0)
         {
             amtaReader.Position = BaseAddress + Info.MinfOffset;
-            Console.WriteLine("Found MINF offset");
             Minf = new MINFFile(ref amtaReader);
         }
 
         if (Info.TagOffset != 0)
         {
             amtaReader.Position = BaseAddress + Info.TagOffset;
-            Console.WriteLine("Found Tag offset");
             TagTable = new AMTATagTable(ref amtaReader);
         }
 
@@ -149,6 +146,8 @@ public struct AMTAFile
             amtaWriter.Position = amtaData.Info.MinfOffset;
             amtaWriter.Write(MINFFile.Save(amtaData.Minf));
         }
+
+        amtaWriter.WriteTerminatedAt(amtaData.Info.PathOffset, amtaData.Path);
 
         return saveStream.ToArray();
     }

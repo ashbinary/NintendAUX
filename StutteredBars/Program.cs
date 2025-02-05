@@ -6,7 +6,7 @@ class Program
 {
     public static void Main(string[] args)
     {
-        BARSFile bars = new BARSFile(File.ReadAllBytes("BgmLobbyVersus.Product.920.bars"));
+        //BARSFile bars = new BARSFile(File.ReadAllBytes("BgmLobbyVersus.Product.920.bars"));
         AMTAFile amta = new AMTAFile(File.ReadAllBytes("BGM_LobbyVersus_Gambit_SquidSquad_04.bameta"));
         BWAVFile bwav = new BWAVFile(File.ReadAllBytes("BGM_Versus_Fes_SAND_3Idol.bwav"));
 
