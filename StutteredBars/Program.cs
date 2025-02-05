@@ -12,7 +12,7 @@ class Program
 
         foreach (AMTAFile amtaList in bars.Metadata)
         {
-            if (amtaList.Info.MarkerOffset != 0)
+            if (amtaList.Minf.Info.InstrumentInfoTableOffset != 0)
                 Console.WriteLine(amtaList.Path);         
         }
 

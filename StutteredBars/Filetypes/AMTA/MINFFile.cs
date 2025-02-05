@@ -235,6 +235,8 @@ public struct MINFFile
                     Reserve2 = minfReader.ReadUInt32(),
                 };
 
+                minfReader.Position = InstrumentAddress + (8 * (i + 1));
+
                 
             }
 
