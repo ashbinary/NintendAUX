@@ -6,7 +6,10 @@ using StutteredBars.Helpers;
 
 namespace StutteredBars.Filetypes;
 
-public struct AMTAFile
+// Currently not used.
+// Almost fully functional, but has issues regarding Instrument offsets.
+// SimpleAMTA is used instead.
+public struct FullAMTAFile
 {
     [StructLayout(LayoutKind.Sequential, Size = 49)]
     public struct AMTAInfo
@@ -54,7 +57,7 @@ public struct AMTAFile
 
     public string Path;
 
-    public AMTAFile(ref FileReader amtaReader)
+    public FullAMTAFile(ref FileReader amtaReader)
     {
         BaseAddress = amtaReader.Position;
         
@@ -107,13 +110,13 @@ public struct AMTAFile
 
     }
 
-    public AMTAFile(byte[] data)
+    public FullAMTAFile(byte[] data)
     {
         FileReader barsReader = new(new MemoryStream(data));
-        this = new AMTAFile(ref barsReader);
+        this = new FullAMTAFile(ref barsReader);
     }
 
-    public static byte[] Save(AMTAFile amtaData)
+    public static byte[] Save(FullAMTAFile amtaData)
     {
         using MemoryStream saveStream = new();
         FileWriter amtaWriter = new FileWriter(saveStream);
@@ -159,12 +162,65 @@ public struct AMTAFile
     }
 }
 
-public struct SimpleAMTA
+public struct AMTAFile
 {
+    [StructLayout(LayoutKind.Sequential, Size = 49)]
+    public struct AMTAInfo
+    {
+        public uint Magic;
+        public ushort Endianness;
+        public byte MinorVersion;
+        public byte MajorVersion;
+        public uint Size;
+        public uint Reserve0;
+        public uint DataOffset;
+        public uint MarkerOffset;
+        public uint MinfOffset;
+        public uint TagOffset;
+        public uint Reserve4;
+        public uint PathOffset;
+        public uint PathHash;
+        public uint Flags; // Technically a bitfield, but...
+        public byte SourceCount;
+    }
+
+    private long BaseAddress;
+    public AMTAInfo Info;
+    public string Path;
     public byte[] Data;
     
-    public SimpleAMTA(byte[] data)
+    public AMTAFile(ref FileReader amtaReader)
+    {   
+        BaseAddress = amtaReader.Position;
+
+        Info = MemoryMarshal.AsRef<AMTAInfo>(
+            amtaReader.ReadBytes(Unsafe.SizeOf<AMTAInfo>())
+        );
+
+        amtaReader.Position = BaseAddress + Marshal.OffsetOf<AMTAInfo>("PathOffset") + Info.PathOffset;
+
+        Path = amtaReader.ReadTerminatedString();
+
+        int amtaLength = Convert.ToInt32(amtaReader.Position - BaseAddress);
+        amtaReader.Position = BaseAddress;
+        
+        Data = amtaReader.ReadBytes(amtaLength);
+    }
+
+    public AMTAFile(byte[] data)
     {
-        Data = data;
+        FileReader amtaReader = new(new MemoryStream(data));
+        this = new AMTAFile(ref amtaReader);
+    }
+
+    public byte[] Save(AMTAFile amtaData)
+    {
+        using MemoryStream saveStream = new(Data);
+        FileWriter amtaWriter = new FileWriter(saveStream);
+
+        amtaWriter.Write(MemoryMarshal.AsBytes(new Span<AMTAInfo>(ref amtaData.Info)));
+        amtaWriter.WriteAt(Marshal.OffsetOf<AMTAInfo>("PathOffset") + amtaData.Info.PathOffset, amtaData.Path);
+
+        return saveStream.ToArray();
     }
 }

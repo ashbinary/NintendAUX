@@ -37,8 +37,7 @@ public struct BARSFile
     public BarsEntry[] EntryArray;
     public BarsReserveData ReserveData;
 
-    public SimpleAMTA[] Metadata;
-    public AMTAFile[] ParsedMetadata;
+    public AMTAFile[] Metadata;
     public BWAVFile[] Tracks;
 
     public BARSFile(byte[] data)
@@ -62,8 +61,7 @@ public struct BARSFile
         for (int i = 0; i < ReserveData.FileCount; i++)
             ReserveData.FileHashes[i] = barsReader.ReadUInt32();
 
-        Metadata = new SimpleAMTA[EntryArray.Length];
-        ParsedMetadata = new AMTAFile[EntryArray.Length];
+        Metadata = new AMTAFile[EntryArray.Length];
         Tracks = new BWAVFile[EntryArray.Length];
 
         for (int i = 0; i < EntryArray.Length; i++)
@@ -75,13 +73,7 @@ public struct BARSFile
         for (int i = 0; i < EntryArray.Length; i++)
         {
             barsReader.Position = EntryArray[i].BamtaOffset;
-            ParsedMetadata[i] = new AMTAFile(ref barsReader);
-
-            barsReader.Position = EntryArray[i].BamtaOffset;
-            if (i == EntryArray.Length - 1)
-                Metadata[i].Data = barsReader.ReadBytes((int)(EntryArray[0].BwavOffset - EntryArray[i].BamtaOffset));
-            else
-                Metadata[i].Data = barsReader.ReadBytes((int)(EntryArray[i + 1].BamtaOffset - EntryArray[i].BamtaOffset));
+            Metadata[i] = new AMTAFile(ref barsReader);
         }
     }
 
@@ -92,11 +84,11 @@ public struct BARSFile
 
         barsWriter.Write(MemoryMarshal.AsBytes(new Span<BarsHeader>(ref barsData.Header)));
 
-        int newFileCount = barsData.ParsedMetadata.Length;
+        int newFileCount = barsData.Metadata.Length;
         barsWriter.WriteAt(Marshal.OffsetOf<BarsHeader>("FileCount"), newFileCount); // Use AMTA file amount to calculate data (cannot be dupe)
 
         SortedDictionary<uint, string> pathList = new();
-        foreach (AMTAFile metadata in barsData.ParsedMetadata)
+        foreach (AMTAFile metadata in barsData.Metadata)
             pathList.Add(CRC32.Compute(metadata.Path), metadata.Path);
 
         foreach (uint fileHash in pathList.Keys)
