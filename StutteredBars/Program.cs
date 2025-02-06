@@ -11,8 +11,10 @@ class Program
         BARSFile bars = new BARSFile(File.ReadAllBytes("BgmVersusFest_SAND.bars"));
 
         BWAVFile lastBossBwav = new BWAVFile(File.ReadAllBytes("BGM_Jukebox_Blitz_Octa_LastBoss.bwav"));
-        AMTAFile lastbossAmtaParsed = new AMTAFile(File.ReadAllBytes("BGM_Jukebox_Blitz_Octa_LastBoss.bameta"));
-        SimpleAMTA lastbossAmta = new SimpleAMTA(File.ReadAllBytes("BGM_Jukebox_Blitz_Octa_LastBoss.bameta"));
+
+        byte[] amtaRawData = File.ReadAllBytes("BGM_Jukebox_Blitz_Octa_LastBoss.bameta");
+        AMTAFile lastbossAmtaParsed = new AMTAFile(amtaRawData);
+        SimpleAMTA lastbossAmta = new SimpleAMTA(amtaRawData);
 
         ResizeAndAdd(ref bars.Tracks, lastBossBwav);
         ResizeAndAdd(ref bars.Metadata, lastbossAmta);
