@@ -1,38 +1,39 @@
-// https://stackoverflow.com/questions/8128/how-do-i-calculate-crc32-of-a-string
+using System;
+using System.Text;
+using System.Security.Cryptography;
+
 public class CRC32
 {
-    private readonly uint[] ChecksumTable;
-    private readonly uint Polynomial = 0xEDB88320;
+    private static readonly uint[] Table = GenerateTable();
 
-    public CRC32()
+    private static uint[] GenerateTable()
     {
-        ChecksumTable = new uint[0x100];
+        uint[] table = new uint[256];
+        const uint polynomial = 0xEDB88320;
 
-        for (uint index = 0; index < 0x100; ++index)
+        for (uint i = 0; i < 256; i++)
         {
-            uint item = index;
-            for (int bit = 0; bit < 8; ++bit)
-                item = ((item & 1) != 0) ? (Polynomial ^ (item >> 1)) : (item >> 1);
-            ChecksumTable[index] = item;
+            uint crc = i;
+            for (int j = 0; j < 8; j++)
+            {
+                crc = (crc & 1) != 0 ? (crc >> 1) ^ polynomial : crc >> 1;
+            }
+            table[i] = crc;
         }
+
+        return table;
     }
 
-    public byte[] ComputeHash(Stream stream)
+    public static uint Compute(string input)
     {
-        uint result = 0xFFFFFFFF;
+        byte[] bytes = Encoding.UTF8.GetBytes(input);
+        uint crc = 0xFFFFFFFF;
 
-        int current;
-        while ((current = stream.ReadByte()) != -1)
-            result = ChecksumTable[(result & 0xFF) ^ (byte)current] ^ (result >> 8);
+        foreach (byte b in bytes)
+        {
+            crc = (crc >> 8) ^ Table[(crc ^ b) & 0xFF];
+        }
 
-        byte[] hash = BitConverter.GetBytes(~result);
-        Array.Reverse(hash);
-        return hash;
-    }
-
-    public byte[] ComputeHash(byte[] data)
-    {
-        using (MemoryStream stream = new MemoryStream(data))
-            return ComputeHash(stream);
+        return (uint)(~crc); // Convert to signed int
     }
 }

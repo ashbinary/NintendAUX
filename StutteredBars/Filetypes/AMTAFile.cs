@@ -13,8 +13,8 @@ public struct AMTAFile
     {
         public uint Magic;
         public ushort Endianness;
-        public byte MajorVersion;
         public byte MinorVersion;
+        public byte MajorVersion;
         public uint Size;
         public uint Reserve0;
         public uint DataOffset;
@@ -147,8 +147,24 @@ public struct AMTAFile
             amtaWriter.Write(MINFFile.Save(amtaData.Minf));
         }
 
-        amtaWriter.WriteTerminatedAt(amtaData.Info.PathOffset, amtaData.Path);
+        if (amtaData.Info.TagOffset != 0)
+        {
+            amtaWriter.Position = amtaData.Info.TagOffset;
+            amtaWriter.Write(AMTATagTable.Save(amtaData.TagTable));
+        }
+
+        amtaWriter.WriteTerminatedAt(Marshal.OffsetOf<AMTAInfo>("PathOffset") + amtaData.Info.PathOffset, amtaData.Path);
 
         return saveStream.ToArray();
+    }
+}
+
+public struct SimpleAMTA
+{
+    public byte[] Data;
+    
+    public SimpleAMTA(byte[] data)
+    {
+        Data = data;
     }
 }

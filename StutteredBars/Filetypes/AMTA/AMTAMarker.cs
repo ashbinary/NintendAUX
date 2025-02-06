@@ -23,14 +23,16 @@ public struct AMTAMarkerTable
 
     public AMTAMarkerTable(ref FileReader fileReader)
     {
+        
         MarkerCount = fileReader.ReadUInt32();  
         Markers = new AMTAMarker[MarkerCount];
 
         FileBase = fileReader.Position;
+        long[] markerPositions = new long[MarkerCount];
 
         for (int i = 0; i < MarkerCount; i++)
         {
-
+            markerPositions[i] = fileReader.Position + 4;
             Markers[i] = new AMTAMarker
             {
                 ID = fileReader.ReadUInt32(),
@@ -42,7 +44,7 @@ public struct AMTAMarkerTable
 
         for (int i = 0; i < MarkerCount; i++)
         {
-            fileReader.Position = FileBase + 8 + Markers[i].NameOffset;
+            fileReader.Position = markerPositions[i] + Markers[i].NameOffset;
             Markers[i].Name = fileReader.ReadTerminatedString();
         }
     }
@@ -52,13 +54,22 @@ public struct AMTAMarkerTable
         using MemoryStream saveStream = new();
         FileWriter amtaWriter = new FileWriter(saveStream);
 
+        List<long> nameOffsetPos = new();
+
         amtaWriter.Write(markerTable.MarkerCount);
         foreach (AMTAMarker marker in markerTable.Markers)
         {
             amtaWriter.Write(marker.ID);
+            nameOffsetPos.Add(amtaWriter.Position);
             amtaWriter.Write(marker.NameOffset);
             amtaWriter.Write(marker.Start);
             amtaWriter.Write(marker.Length);
+        }
+
+        for (int i = 0; i < markerTable.MarkerCount; i++)
+        {
+            amtaWriter.Position = nameOffsetPos[i] + markerTable.Markers[i].NameOffset;
+            amtaWriter.Write(markerTable.Markers[i].Name);
         }
 
         return saveStream.ToArray();

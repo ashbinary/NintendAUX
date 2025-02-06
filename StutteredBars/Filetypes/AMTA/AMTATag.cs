@@ -36,4 +36,26 @@ public struct AMTATagTable
             Tags[i].Name = amtaReader.ReadTerminatedString();
         }
     }
+
+    public static byte[] Save(AMTATagTable tableData)
+    {
+        using MemoryStream saveStream = new();
+        FileWriter amtaWriter = new FileWriter(saveStream);
+
+        amtaWriter.Write(tableData.TagCount);
+        
+        long BaseAddress = amtaWriter.Position;
+        long TagOffsetAddress = amtaWriter.Position;
+
+        foreach (AMTATag tag in tableData.Tags)
+        {
+            amtaWriter.Write(tag.TagOffset);
+            TagOffsetAddress = amtaWriter.Position;
+            amtaWriter.Position = BaseAddress + tag.TagOffset;
+            amtaWriter.Write(tag.Name);
+            amtaWriter.Position = TagOffsetAddress;
+        }
+
+        return saveStream.ToArray();
+    }
 }
