@@ -107,7 +107,7 @@ public struct BARSFile
         for (int a = 0; a < barsData.Metadata.Length; a++)
         {
             offsets[a, 0] = barsWriter.Position;
-            barsWriter.Write(barsData.Metadata[a].Data);
+            barsWriter.Write(AMTAFile.Save(barsData.Metadata[a]));
             barsWriter.Align(0x4);
         }
 
@@ -117,7 +117,7 @@ public struct BARSFile
         {
             offsets[a, 1] = barsWriter.Position;
             barsWriter.Write(BWAVFile.Save(barsData.Tracks[a]));
-            barsWriter.Align(0x4);
+            //barsWriter.Align(0x4);
         }
         
         barsWriter.Position = offsetAddress;

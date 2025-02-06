@@ -201,18 +201,16 @@ public struct AMTAFile
 
         Path = amtaReader.ReadTerminatedString();
 
-        byte[] amtaMagic = [0x41, 0x4d, 0x54, 0x41];
-
         bool foundAMTA = false;
         while (!foundAMTA)
         {
             if (amtaReader.Position >= amtaReader.BaseStream.Length - 4)
+            {
+                amtaReader.Position += 4;
                 break; // Found end of stream, just go with it
+            }
             byte[] amtaData = amtaReader.ReadBytes(4);
             amtaReader.Position -= 3;
-
-
-            //Console.WriteLine($"looking for AMTA... (position ${amtaReader.Position})");
 
             if (amtaData[0] != 0x41 && amtaData[0] != 0x42) continue; // A|B
             if (amtaData[1] != 0x4d && amtaData[1] != 0x57) continue; // M|W
@@ -220,10 +218,11 @@ public struct AMTAFile
             if (amtaData[3] != 0x41 && amtaData[3] != 0x56) continue; // A|V
 
             foundAMTA = true;
+            amtaReader.Position -= 1; // To reset the stream if found
         }
 
 
-        int amtaLength = Convert.ToInt32(amtaReader.Position - 1 - BaseAddress);
+        int amtaLength = Convert.ToInt32(amtaReader.Position - BaseAddress);
         amtaReader.Position = BaseAddress;
 
         Data = amtaReader.ReadBytes(amtaLength);
@@ -235,9 +234,9 @@ public struct AMTAFile
         this = new AMTAFile(ref amtaReader);
     }
 
-    public byte[] Save(AMTAFile amtaData)
+    public static byte[] Save(AMTAFile amtaData)
     {
-        using MemoryStream saveStream = new(Data);
+        using MemoryStream saveStream = new(amtaData.Data);
         FileWriter amtaWriter = new FileWriter(saveStream);
 
         amtaWriter.Write(MemoryMarshal.AsBytes(new Span<AMTAInfo>(ref amtaData.Info)));

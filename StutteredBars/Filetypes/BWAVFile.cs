@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using StutteredBars.Helpers;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
+using StutteredBars.Filetypes.AMTA;
 
-public struct BWAVFile
+public struct FullBWAVFile
 {
 
     [StructLayout(LayoutKind.Sequential)]
@@ -97,7 +98,7 @@ public struct BWAVFile
 
     private long FileBase;
 
-    public BWAVFile(ref FileReader bwavReader)
+    public FullBWAVFile(ref FileReader bwavReader)
     {
         Header = MemoryMarshal.AsRef<BwavHeader>(
             bwavReader.ReadBytes(Unsafe.SizeOf<BwavHeader>())
@@ -175,13 +176,13 @@ public struct BWAVFile
         }
     }
 
-    public BWAVFile(byte[] data)
+    public FullBWAVFile(byte[] data)
     {
         FileReader fileReader = new(new MemoryStream(data));
-        this = new BWAVFile(ref fileReader);
+        this = new FullBWAVFile(ref fileReader);
     }
 
-    public static byte[] Save(BWAVFile bwavData)
+    public static byte[] Save(FullBWAVFile bwavData)
     {
         using MemoryStream saveStream = new();
         FileWriter bwavWriter = new FileWriter(saveStream);
@@ -215,6 +216,9 @@ public struct BWAVFile
 
             bwavPosition = bwavWriter.Position;
 
+            if (channelInfo.Encoding == BwavEncoding.Opus) 
+                throw new NotImplementedException();
+
             // To-do: Support OPUS
             bwavWriter.Position = channelInfo.SamplesOffset;
             bwavWriter.Write(channelInfo.OSamples);
@@ -225,4 +229,71 @@ public struct BWAVFile
         return saveStream.ToArray();
     }
 
+}
+
+public struct BWAVFile // whatever LOLLLLL
+{
+    public struct BwavHeader
+    {
+        public uint Magic;
+        public ushort Endianess;
+        public ushort Version;
+        public uint SamplesCrc32;
+        public ushort IsPrefetch;
+        public ushort ChannelCount;
+    }
+
+    private long BaseAddress;
+    public BwavHeader Header;
+    public byte[] Data;
+
+    public BWAVFile(ref FileReader bwavReader)
+    {
+        BaseAddress = bwavReader.Position;
+
+        Header = MemoryMarshal.AsRef<BwavHeader>(
+            bwavReader.ReadBytes(Unsafe.SizeOf<BwavHeader>())
+        );
+
+        bool foundBWAV = false;
+        while (!foundBWAV)
+        {
+            if (bwavReader.Position >= bwavReader.BaseStream.Length - 4)
+            {
+                bwavReader.Position += 4;
+                break; // Found end of stream, just go with it
+            }
+            byte[] bwavData = bwavReader.ReadBytes(4);
+            bwavReader.Position -= 3;
+
+            if (bwavData[0] != 0x42) continue; // B
+            if (bwavData[1] != 0x57) continue; // W
+            if (bwavData[2] != 0x41) continue; // A
+            if (bwavData[3] != 0x56) continue; // V
+
+            foundBWAV = true;
+            bwavReader.Position -= 1; // To reset the stream if found
+        }
+
+        int bwavLength = Convert.ToInt32(bwavReader.Position - BaseAddress);
+        bwavReader.Position = BaseAddress;
+
+        Data = bwavReader.ReadBytes(bwavLength);
+    }
+
+    public BWAVFile(byte[] data)
+    {
+        FileReader fileReader = new(new MemoryStream(data));
+        this = new BWAVFile(ref fileReader);
+    }
+
+    public static byte[] Save(BWAVFile bwavData)
+    {
+        using MemoryStream saveStream = new(bwavData.Data);
+        FileWriter bwavWriter = new FileWriter(saveStream);
+
+        bwavWriter.Write(MemoryMarshal.AsBytes(new Span<BwavHeader>(ref bwavData.Header))); 
+
+        return saveStream.ToArray();
+    }
 }
