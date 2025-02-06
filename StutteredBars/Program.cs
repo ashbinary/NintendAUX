@@ -16,7 +16,7 @@ class Program
         ResizeAndAdd(ref bars.Tracks, lastBossBwav);
         ResizeAndAdd(ref bars.Metadata, lastbossAmta);
 
-        File.WriteAllBytes("BgmVersusFest_SAND_Gamblitz.bars", BARSFile.SoftSave(bars));
+        File.WriteAllBytes("BgmVersusFest_SAND_Resaved.bars", BARSFile.SoftSave(bars));
     }
 
     public static void ResizeAndAdd<T>(ref T[] array, T data)

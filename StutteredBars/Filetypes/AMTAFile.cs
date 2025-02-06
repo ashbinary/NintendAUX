@@ -201,9 +201,26 @@ public struct AMTAFile
 
         Path = amtaReader.ReadTerminatedString();
 
+        byte[] amtaMagic = [0x41, 0x4d, 0x54, 0x41];
+
+        bool foundAMTA = false;
+        while (!foundAMTA)
+        {
+            byte[] amtaData = amtaReader.ReadBytes(4);
+            amtaReader.Position -= 3;
+
+            if (amtaData[0] != 0x41 && amtaData[0] != 0x42) continue; // A|B
+            if (amtaData[1] != 0x4d && amtaData[1] != 0x57) continue; // M|W
+            if (amtaData[2] != 0x54 && amtaData[2] != 0x41) continue; // T|A
+            if (amtaData[3] != 0x41 && amtaData[3] != 0x56) continue; // A|V
+
+            foundAMTA = true;
+            amtaReader.Position -= 1;
+        }
+
         int amtaLength = Convert.ToInt32(amtaReader.Position - BaseAddress);
         amtaReader.Position = BaseAddress;
-        
+
         Data = amtaReader.ReadBytes(amtaLength);
     }
 
