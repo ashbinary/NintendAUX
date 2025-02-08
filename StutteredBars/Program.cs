@@ -26,6 +26,18 @@ class Program
         File.WriteAllBytes("BGM_Jukebox_BlitzOLB_Resave.bameta", AMTAFile.Save(lastBossAmta));
         //AMTAFile lastbossAmta = new AMTAFile(File.ReadAllBytes("BGM_Jukebox_Blitz_Octa_LastBoss.bameta"));
 
+        string NEWAMTAPATH_ADDHERE = "";
+
+        for (int i = 0; i < bars.Metadata.Length; i++)
+        {
+            if (bars.Metadata[i].Path == NEWAMTAPATH_ADDHERE)
+            {
+                bars.Metadata[i] = lastBossAmta;
+                bars.Tracks[i] = lastBossBwav;
+            }
+        }
+        
+
         ResizeAndAdd(ref bars.Tracks, lastBossBwav);
         ResizeAndAdd(ref bars.Metadata, lastBossAmta);
 
