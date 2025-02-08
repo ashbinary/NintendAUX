@@ -37,8 +37,8 @@ public struct BARSFile
     public BarsEntry[] EntryArray;
     public BarsReserveData ReserveData;
 
-    public AMTAFile[] Metadata;
-    public BWAVFile[] Tracks;
+    public List<AMTAFile> Metadata;
+    public List<BWAVFile> Tracks;
 
     public BARSFile(byte[] data)
     {
@@ -61,19 +61,19 @@ public struct BARSFile
         for (int i = 0; i < ReserveData.FileCount; i++)
             ReserveData.FileHashes[i] = barsReader.ReadUInt32();
 
-        Metadata = new AMTAFile[EntryArray.Length];
-        Tracks = new BWAVFile[EntryArray.Length];
+        Metadata = new();
+        Tracks = new();
 
         for (int i = 0; i < EntryArray.Length; i++)
         {
             barsReader.Position = EntryArray[i].BwavOffset;
-            Tracks[i] = new BWAVFile(ref barsReader);
+            Tracks.Add(new BWAVFile(ref barsReader));
         }
 
         for (int i = 0; i < EntryArray.Length; i++)
         {
             barsReader.Position = EntryArray[i].BamtaOffset;
-            Metadata[i] = new AMTAFile(ref barsReader);
+            Metadata.Add(new AMTAFile(ref barsReader));
         }
     }
 
@@ -84,7 +84,7 @@ public struct BARSFile
 
         barsWriter.Write(MemoryMarshal.AsBytes(new Span<BarsHeader>(ref barsData.Header)));
 
-        int newFileCount = barsData.Metadata.Length;
+        int newFileCount = barsData.Metadata.Count;
         barsWriter.WriteAt(Marshal.OffsetOf<BarsHeader>("FileCount"), newFileCount); // Use AMTA file amount to calculate data (cannot be dupe)
 
         SortedDictionary<uint, string> pathList = new();
@@ -104,7 +104,7 @@ public struct BARSFile
         foreach (uint barsHash in barsData.ReserveData.FileHashes)
             barsWriter.Write(barsHash);
 
-        for (int a = 0; a < barsData.Metadata.Length; a++)
+        for (int a = 0; a < barsData.Metadata.Count; a++)
         {
             offsets[a, 0] = barsWriter.Position;
             barsWriter.Write(AMTAFile.Save(barsData.Metadata[a]));
@@ -113,7 +113,7 @@ public struct BARSFile
 
         barsWriter.Align(0x20);
 
-        for (int a = 0; a < barsData.Tracks.Length; a++)
+        for (int a = 0; a < barsData.Tracks.Count; a++)
         {
             offsets[a, 1] = barsWriter.Position;
             barsWriter.Write(BWAVFile.Save(barsData.Tracks[a]));

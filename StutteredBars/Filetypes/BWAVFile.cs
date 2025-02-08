@@ -286,6 +286,12 @@ public struct BWAVFile // whatever LOLLLLL
         FileReader fileReader = new(new MemoryStream(data));
         this = new BWAVFile(ref fileReader);
     }
+    
+    public BWAVFile(Stream data)
+    {
+        FileReader fileReader = new(data);
+        this = new BWAVFile(ref fileReader);
+    }
 
     public static byte[] Save(BWAVFile bwavData)
     {

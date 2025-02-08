@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AvaloniaProject">
+    <option name="projectPerEditor">
+      <map>
+        <entry key="StutteredBars.Frontend/App.axaml" value="StutteredBars.Frontend/StutteredBars.Frontend.csproj" />
+        <entry key="StutteredBars.Frontend/Views/MainWindow.axaml" value="StutteredBars.Frontend/StutteredBars.Frontend.csproj" />
+      </map>
+    </option>
+  </component>
+</project>

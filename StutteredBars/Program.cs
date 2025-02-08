@@ -28,19 +28,6 @@ class Program
 
         string NEWAMTAPATH_ADDHERE = "";
 
-        for (int i = 0; i < bars.Metadata.Length; i++)
-        {
-            if (bars.Metadata[i].Path == NEWAMTAPATH_ADDHERE)
-            {
-                bars.Metadata[i] = lastBossAmta;
-                bars.Tracks[i] = lastBossBwav;
-            }
-        }
-        
-
-        ResizeAndAdd(ref bars.Tracks, lastBossBwav);
-        ResizeAndAdd(ref bars.Metadata, lastBossAmta);
-
         File.WriteAllBytes("BgmVersusFest_SAND_Resaved.bars", BARSFile.SoftSave(bars));
     }
 

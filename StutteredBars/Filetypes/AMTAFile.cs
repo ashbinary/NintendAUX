@@ -234,6 +234,12 @@ public struct AMTAFile
         this = new AMTAFile(ref amtaReader);
     }
 
+    public AMTAFile(Stream stream)
+    {
+        FileReader amtaReader = new(stream);
+        this = new AMTAFile(ref amtaReader);
+    }
+
     public static byte[] Save(AMTAFile amtaData)
     {
         using MemoryStream saveStream = new(amtaData.Data);
