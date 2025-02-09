@@ -2,14 +2,17 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Logging;
 using Avalonia.Platform.Storage;
+using Avalonia.VisualTree;
 using StutteredBars.Filetypes;
 using StutteredBars.Frontend.Compression;
 using StutteredBars.Frontend.Models;
@@ -31,9 +34,18 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         this.DataContext = new MainWindowViewModel();
+        AllArea.AddHandler(DragDrop.DropEvent, DragFileOn);
     }
     
     public MainWindowViewModel Model => (MainWindowViewModel)DataContext;
+
+    public void DragFileOn(object sender, DragEventArgs e)
+    {
+        if (e.Data?.GetFiles()?.FirstOrDefault() is IStorageFile storageFile)
+        {
+            LoadBars(storageFile);
+        }
+    }
 
     public async void OpenBARSFile(object sender, RoutedEventArgs e)
     {
@@ -46,13 +58,19 @@ public partial class MainWindow : Window
         
         if (barsFile != null)
         {
-            var barsData = File.ReadAllBytes(barsFile.Path.LocalPath);
-            if (barsData.Take(4) != Utilities.BARSHeader) barsData = barsData.DecompressZSTDBytes();
-            currentBARS = new BARSFile(barsData);
-            Model.BarsFilePath = barsFile.Name;
-            ReloadNode();
-            Model.BarsLoaded = true;
+            LoadBars(barsFile);
         }
+    }
+
+    public void LoadBars(IStorageFile barsFile)
+    {
+        var barsData = File.ReadAllBytes(barsFile.Path.LocalPath);
+        Console.WriteLine(barsData.Take(4).ToArray().Last());
+        if (!barsData.Take(4).ToArray().SequenceEqual(Utilities.BARSHeader)) barsData = barsData.DecompressZSTDBytes();
+        currentBARS = new BARSFile(barsData);
+        Model.BarsFilePath = barsFile.Name;
+        ReloadNode();
+        Model.BarsLoaded = true;
     }
 
     public async void SaveDecompressedBARSFile(object sender, RoutedEventArgs e) => SaveBARSFile(false);
@@ -77,23 +95,6 @@ public partial class MainWindow : Window
             stream.Flush();
         }
     }
-    
-    public async void SaveBARSFileCompressed(object? sender, RoutedEventArgs e)
-    {
-        var barsFile = await SaveFile(new FilePickerSaveOptions()
-        {
-            Title = "Save BARS File",
-            DefaultExtension = ".bars",
-            SuggestedFileName = Model.BarsFilePath
-        });
-        
-        if (barsFile != null)
-        {
-            using var stream = await barsFile.OpenWriteAsync();
-            stream.Write(ZSTDUtils.CompressZSTD(BARSFile.SoftSave(currentBARS)));
-            stream.Flush();
-        }
-    }
 
     public void ChangeDisplayedInfo(object? sender, SelectionChangedEventArgs e)
     {
@@ -101,6 +102,7 @@ public partial class MainWindow : Window
         
         currentNode = ((TreeView)sender).SelectedItem; // dude
         Model.TextData = InfoParser.ParseData(currentBARS.Metadata[currentNode.ID], currentBARS.Tracks[currentNode.ID]);
+        Console.WriteLine(((TreeView)sender).Items.ToList().IndexOf(currentNode));
     }
 
     public void ExitApplication(object? sender, RoutedEventArgs e)
@@ -251,7 +253,8 @@ public partial class MainWindow : Window
         {
             var storageProvider = desktop.MainWindow?.StorageProvider;
             var files = await storageProvider.SaveFilePickerAsync(options);
-            return files;
+            if (files != null)
+                return files;
         }
 
         return null;
@@ -263,7 +266,8 @@ public partial class MainWindow : Window
         {
             var storageProvider = desktop.MainWindow?.StorageProvider;
             var files = await storageProvider.OpenFolderPickerAsync(options);
-            return files[0];
+            if (files.Count > 0)
+                return files[0];
         }
 
         return null;
@@ -275,7 +279,8 @@ public partial class MainWindow : Window
         {
             var storageProvider = desktop.MainWindow?.StorageProvider;
             var files = await storageProvider.OpenFilePickerAsync(options);
-            return files[0];
+            if (files.Count > 0)
+                return files[0];
         }
 
         return null;

@@ -18,6 +18,6 @@ public static class Utilities
     }
 
     public static byte[] BWAVHeader => [0x42, 0x57, 0x41, 0x56];
-    public static byte[] BARSHeader => [0x42, 0x41, 0x72, 0x73];
+    public static byte[] BARSHeader => [0x42, 0x41, 0x52, 0x53];
     public static byte[] AMTAHeader => [0x41, 0x4D, 0x54, 0x41];
 }

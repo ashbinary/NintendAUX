@@ -53,8 +53,8 @@
                        VerticalAlignment="Top"
                        TextWrapping="WrapWithOverflow" Margin="10,5"/>
         </Grid>    
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
+        <Grid x:Name="AllArea" Grid.Row="1" DragDrop.AllowDrop="True">
+             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" />
                 <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
@@ -62,13 +62,17 @@
             <TreeView Margin="2,0,5,5" x:Name="treeView" ItemsSource="{Binding Nodes}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}" SelectionChanged="ChangeDisplayedInfo">
             <TreeView.DataTemplates>
                 <TreeDataTemplate DataType="models:BARSEntryNode" ItemsSource="{Binding SubNodes}">
-                    <TextBlock Text="{Binding Title}">
-                        <TextBlock.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="Delete Entry" Click="DeleteBARSEntry"/>
-                            </ContextMenu>
-                        </TextBlock.ContextMenu>
-                    </TextBlock>
+                    <StackPanel x:Name="PanelThing">
+                        <TextBox x:Name="RenameBox" IsVisible="False"/>
+                        <TextBlock Text="{Binding Title}">
+                            <TextBlock.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Delete Entry" Click="DeleteBARSEntry"/>
+                                    <MenuItem Header="Rename Entry" Click="DeleteBARSEntry"/>
+                                </ContextMenu>
+                            </TextBlock.ContextMenu>
+                        </TextBlock>
+                    </StackPanel>    
                 </TreeDataTemplate>
                 <TreeDataTemplate DataType="models:BWAVNode">
                     <TextBlock Text="{Binding Title}">
