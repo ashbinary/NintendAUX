@@ -183,10 +183,28 @@ public struct AMTAFile
         public uint Flags; // Technically a bitfield, but...
         public byte SourceCount;
     }
+    
+    public struct AMTAMarker {
+        public uint ID;
+        public uint NameOffset;
+        public uint Start;
+        public uint Length;
+
+        public string Name;
+    };
+
+    public struct AMTAMarkerTable
+    {
+        public uint MarkerCount;
+        public AMTAMarker[] Markers;
+    }
 
     private long BaseAddress;
     public AMTAInfo Info;
+    public AMTAMarkerTable MarkerTable;
+    
     public string Path;
+    private int PathLength;
     public byte[] Data;
     
     public AMTAFile(ref FileReader amtaReader)
@@ -196,10 +214,38 @@ public struct AMTAFile
         Info = MemoryMarshal.AsRef<AMTAInfo>(
             amtaReader.ReadBytes(Unsafe.SizeOf<AMTAInfo>())
         );
+        
+        if (Info.MarkerOffset != 0)
+        {
+            amtaReader.Position = BaseAddress + Info.MarkerOffset;
+            MarkerTable.MarkerCount = amtaReader.ReadUInt32();  
+            MarkerTable.Markers = new AMTAMarker[MarkerTable.MarkerCount];
 
+            long[] markerPositions = new long[MarkerTable.MarkerCount];
+
+            for (int i = 0; i < MarkerTable.MarkerCount; i++)
+            {
+                markerPositions[i] = amtaReader.Position + 4;
+                MarkerTable.Markers[i] = new AMTAMarker
+                {
+                    ID = amtaReader.ReadUInt32(),
+                    NameOffset = amtaReader.ReadUInt32(),
+                    Start = amtaReader.ReadUInt32(),
+                    Length = amtaReader.ReadUInt32()
+                };
+            }
+
+            for (int i = 0; i < MarkerTable.MarkerCount; i++)
+            {
+                amtaReader.Position = markerPositions[i] + MarkerTable.Markers[i].NameOffset;
+                MarkerTable.Markers[i].Name = amtaReader.ReadTerminatedString();
+            }
+        }
+        
         amtaReader.Position = BaseAddress + Marshal.OffsetOf<AMTAInfo>("PathOffset") + Info.PathOffset;
 
         Path = amtaReader.ReadTerminatedString();
+        PathLength = Path.Length;
 
         bool foundAMTA = false;
         while (!foundAMTA)
@@ -242,11 +288,69 @@ public struct AMTAFile
 
     public static byte[] Save(AMTAFile amtaData)
     {
-        using MemoryStream saveStream = new(amtaData.Data);
+        using MemoryStream saveStream = new();
         FileWriter amtaWriter = new FileWriter(saveStream);
+        
+        long BaseAddress = amtaWriter.Position;
+
+        amtaWriter.Write(amtaData.Data);
+        amtaWriter.Position = BaseAddress;
 
         amtaWriter.Write(MemoryMarshal.AsBytes(new Span<AMTAInfo>(ref amtaData.Info)));
-        amtaWriter.WriteAt(Marshal.OffsetOf<AMTAInfo>("PathOffset") + amtaData.Info.PathOffset, amtaData.Path);
+        amtaWriter.Position = BaseAddress;
+        
+        if (amtaData.Info.MarkerOffset != 0)
+        {
+            // find earliest name offset
+            long earliestNameOffset = 0xFFFFFFFFFFFF;
+            for (int i = 0; i < amtaData.MarkerTable.MarkerCount; i++)
+            {
+                if (amtaData.Info.MarkerOffset + (i * 16) + 4 + amtaData.MarkerTable.Markers[i].NameOffset < earliestNameOffset)
+                    earliestNameOffset = amtaData.Info.MarkerOffset + (i * 16) + 4 + amtaData.MarkerTable.Markers[i].NameOffset;
+            }
+            
+            List<long> markerNameOffsets = new();
+            List<long> markerNameOffsetOffsets = new(); // lol
+
+            amtaWriter.Position = amtaData.Info.MarkerOffset;
+            amtaWriter.Write(amtaData.MarkerTable.MarkerCount);
+            for (int i = 0; i < amtaData.MarkerTable.MarkerCount; i++)
+            {
+                amtaWriter.Write(amtaData.MarkerTable.Markers[i].ID);
+                markerNameOffsetOffsets.Add(amtaWriter.Position);
+                amtaWriter.Write((uint)0x00);
+                amtaWriter.Write(amtaData.MarkerTable.Markers[i].Start);
+                amtaWriter.Write(amtaData.MarkerTable.Markers[i].Length);
+            }
+
+            amtaWriter.Align(4);
+
+            amtaWriter.Position = earliestNameOffset;
+            foreach (AMTAMarker marker in amtaData.MarkerTable.Markers)
+            {
+                markerNameOffsets.Add(amtaWriter.Position);
+                amtaWriter.Write(marker.Name);
+                amtaWriter.Write((byte)0x0); //terminating string
+            }
+
+            long PathAddress = amtaWriter.Position - Marshal.OffsetOf<AMTAInfo>("PathOffset");
+            amtaWriter.Write(amtaData.Path);
+            amtaWriter.Pad(4);
+            amtaWriter.WriteAt(Marshal.OffsetOf<AMTAInfo>("PathOffset"), (uint)PathAddress);
+
+            for (int i = 0; i < markerNameOffsets.Count; i++)
+            {
+                uint markerOffset = (uint)markerNameOffsets[i] - (uint)markerNameOffsetOffsets[i];
+                amtaWriter.WriteAt(markerNameOffsetOffsets[i], markerOffset);
+            }
+        }
+        else
+        {
+            // Since no marker table means this is the last thing in the file we're good just adding this at a hard offset
+            amtaWriter.Position = amtaData.Info.PathOffset + Marshal.OffsetOf<AMTAInfo>("PathOffset") + BaseAddress;
+            amtaWriter.Write(amtaData.Path);
+            amtaWriter.Pad(4);
+        }
 
         return saveStream.ToArray();
     }

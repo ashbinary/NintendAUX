@@ -63,12 +63,12 @@
             <TreeView.DataTemplates>
                 <TreeDataTemplate DataType="models:BARSEntryNode" ItemsSource="{Binding SubNodes}">
                     <StackPanel x:Name="PanelThing">
-                        <TextBox x:Name="RenameBox" IsVisible="False"/>
+                        <TextBox x:Name="RenameBox" IsVisible="False" KeyDown="HideTextBox"/>
                         <TextBlock Text="{Binding Title}">
                             <TextBlock.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="Delete Entry" Click="DeleteBARSEntry"/>
-                                    <MenuItem Header="Rename Entry" Click="DeleteBARSEntry"/>
+                                    <MenuItem Header="Rename Entry" Click="RenameBARSFile"/>
                                 </ContextMenu>
                             </TextBlock.ContextMenu>
                         </TextBlock>

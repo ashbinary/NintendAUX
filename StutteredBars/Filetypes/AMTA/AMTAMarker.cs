@@ -74,4 +74,22 @@ public struct AMTAMarkerTable
 
         return saveStream.ToArray();
     }
+
+    public static byte[] SoftSave(AMTAMarkerTable markerTable, long pathPosition)
+    {
+        using MemoryStream saveStream = new();
+        FileWriter amtaWriter = new FileWriter(saveStream);
+        
+        List<long> NamePositions = new();
+        long MarkerTablePos = amtaWriter.Position;
+
+        amtaWriter.Position = pathPosition;
+        for (int i = 0; i < markerTable.MarkerCount; i++)
+        {
+            NamePositions.Add(amtaWriter.Position - (MarkerTablePos + i * 16) + 4);
+            amtaWriter.Write(markerTable.Markers[i].Name);
+        }
+        
+        return saveStream.ToArray();
+    }
 }

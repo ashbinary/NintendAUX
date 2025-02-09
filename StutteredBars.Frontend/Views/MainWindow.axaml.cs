@@ -11,7 +11,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Logging;
+using Avalonia.LogicalTree;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using StutteredBars.Filetypes;
 using StutteredBars.Frontend.Compression;
@@ -24,8 +26,9 @@ namespace StutteredBars.Frontend.Views;
 
 public partial class MainWindow : Window
 {
-    BARSFile currentBARS;
+    public BARSFile currentBARS;
     private dynamic currentNode;
+    private int nodeIndex = 0;
 
     // Used for when an entry is deleted to prevent crashes.
     private bool inDeletion = false;
@@ -81,7 +84,7 @@ public partial class MainWindow : Window
         var barsFile = await SaveFile(new FilePickerSaveOptions()
         {
             Title = "Save BARS File",
-            DefaultExtension = compressFile ? ".bars.zs" : ".bars",
+            DefaultExtension = compressFile ? "bars.zs" : "bars",
             SuggestedFileName = Model.BarsFilePath
         });
         
@@ -96,13 +99,69 @@ public partial class MainWindow : Window
         }
     }
 
+    public void RenameBARSFile(object sender, RoutedEventArgs e)
+    {
+        TreeViewItem currentItem = (TreeViewItem)treeView.GetVisualDescendants().OfType<TreeViewItem>()
+            .FirstOrDefault(tvi => tvi.DataContext == currentNode);
+        if (currentNode.Type == NodeType.BARSEntry)
+        {
+            foreach (TreeViewItem item in treeView.GetVisualDescendants().OfType<TreeViewItem>())
+                if (item.DataContext != currentNode) item.IsEnabled = false;
+            
+            var stackPanel = currentItem.GetLogicalChildren().ElementAt(0).GetLogicalChildren();
+            
+            var textData = (TextBox)stackPanel.ElementAt(0);
+            textData.IsVisible = true;
+
+            var nameTag = (TextBlock)stackPanel.ElementAt(1);
+            nameTag.IsVisible = false;
+        }
+    }
+
+    public void HideTextBox(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            (sender as TextBox).IsVisible = false;
+            SaveRenamedBarsFile((sender as TextBox).Text);
+            (sender as TextBox).Text = null;
+        }
+    }
+
+    public void SaveRenamedBarsFile(string newName)
+    {
+        TreeViewItem currentItem = (TreeViewItem)treeView.GetVisualDescendants().OfType<TreeViewItem>()
+            .FirstOrDefault(tvi => tvi.DataContext == currentNode);
+        if (currentNode.Type == NodeType.BARSEntry)
+        {
+            foreach (TreeViewItem item in treeView.GetVisualDescendants().OfType<TreeViewItem>())
+                item.IsEnabled = true;
+
+            var stackPanel = currentItem.GetLogicalChildren().ElementAt(0).GetLogicalChildren();
+            
+            var textData = (TextBox)stackPanel.ElementAt(0);
+            textData.IsVisible = false;
+
+            var nameTag = (TextBlock)stackPanel.ElementAt(1);
+            nameTag.IsVisible = true;
+            nameTag.Text = newName;
+
+            var sillyMetadata = currentBARS.Metadata[nodeIndex];
+            currentBARS.Metadata.RemoveAt(nodeIndex);
+            sillyMetadata.Path = newName;
+            currentBARS.Metadata.Insert(nodeIndex, sillyMetadata);
+        }
+    }
+
     public void ChangeDisplayedInfo(object? sender, SelectionChangedEventArgs e)
     {
         if (inDeletion || !Model.BarsLoaded) return;
         
         currentNode = ((TreeView)sender).SelectedItem; // dude
         Model.TextData = InfoParser.ParseData(currentBARS.Metadata[currentNode.ID], currentBARS.Tracks[currentNode.ID]);
-        Console.WriteLine(((TreeView)sender).Items.ToList().IndexOf(currentNode));
+        
+        nodeIndex = ((TreeView)sender).Items.ToList().IndexOf(currentNode);
+        
     }
 
     public void ExitApplication(object? sender, RoutedEventArgs e)
@@ -130,7 +189,7 @@ public partial class MainWindow : Window
             new FilePickerSaveOptions()
             {
                 Title = "Save .bwav File",
-                DefaultExtension = ".bwav",
+                DefaultExtension = "bwav",
                 SuggestedFileName = currentBARS.Metadata[currentNode.ID].Path + ".bwav"
             }
         );
@@ -146,7 +205,7 @@ public partial class MainWindow : Window
             new FilePickerSaveOptions()
             {
                 Title = "Save .bameta File",
-                DefaultExtension = ".bameta",
+                DefaultExtension = "bameta",
                 SuggestedFileName = currentBARS.Metadata[currentNode.ID].Path + ".bameta"
             }
         );

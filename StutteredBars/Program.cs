@@ -9,26 +9,9 @@ class Program
     public static void Main(string[] args)
     {
         Console.WriteLine("Loading BARS file");
-        BARSFile bars = new BARSFile(File.ReadAllBytes("BgmVersusFest_SAND.bars"));
-        BARSFile barsResaved = new BARSFile(File.ReadAllBytes("BgmVersusFest_SAND_Resaved.bars"));
-
-        var serializer = new SerializerBuilder()
-        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-        .Build();
-
-        File.WriteAllText("Bars.yaml", serializer.Serialize(bars));
-        File.WriteAllText("BarsResaved.yaml", serializer.Serialize(barsResaved));
-
-        BWAVFile lastBossBwav = new BWAVFile(File.ReadAllBytes("BGM_Jukebox_Blitz_Octa_LastBoss.bwav"));
-        File.WriteAllBytes("BGM_Jukebox_BlitzOLB_Resave.bwav", BWAVFile.Save(lastBossBwav));
-
-        AMTAFile lastBossAmta = new AMTAFile(File.ReadAllBytes("BGM_Jukebox_Blitz_Octa_LastBoss.bameta"));
-        File.WriteAllBytes("BGM_Jukebox_BlitzOLB_Resave.bameta", AMTAFile.Save(lastBossAmta));
-        //AMTAFile lastbossAmta = new AMTAFile(File.ReadAllBytes("BGM_Jukebox_Blitz_Octa_LastBoss.bameta"));
-
-        string NEWAMTAPATH_ADDHERE = "";
-
-        File.WriteAllBytes("BgmVersusFest_SAND_Resaved.bars", BARSFile.SoftSave(bars));
+        AMTAFile bars = new AMTAFile(File.ReadAllBytes("C:\\Users\\Ash\\Documents\\Data\\BGM_Versus_Fes_Thunder_05\\BGM_Versus_Fes_Thunder_05_Resave.bameta"));
+        Console.WriteLine("Idk if imma see you again");
+        //File.WriteAllBytes("C:\\Users\\Ash\\Documents\\Data\\BGM_Versus_Fes_Thunder_05\\BGM_Versus_Fes_Thunder_05_Resave.bameta", AMTAFile.Save(bars));
     }
 
     public static void ResizeAndAdd<T>(ref T[] array, T data)
