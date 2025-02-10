@@ -27,6 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\StutteredBars\StutteredBars.csproj" />
+      <ProjectReference Include="..\BARSBundler.Core\BARSBundler.Core.csproj" />
     </ItemGroup>
 </Project>

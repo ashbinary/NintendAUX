@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace StutteredBars.Helpers;
+namespace BARSBundler.Core.Helpers;
 
 internal static class BinaryUtils
 {
