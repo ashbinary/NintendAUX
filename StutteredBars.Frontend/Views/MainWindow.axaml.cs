@@ -171,7 +171,7 @@ public partial class MainWindow : Window
 
     public void DeleteBARSEntry(object? sender, RoutedEventArgs e)
     {
-        inDeletion = true;
+        inDeletion = true; 
         int nodeIndex = ((BARSEntryNode)currentNode).ID;
         Model.Nodes.RemoveAt(nodeIndex);
         
@@ -225,6 +225,8 @@ public partial class MainWindow : Window
             }
         );
 
+        if (folderData == null) return;
+
         for (int i = 0; i < currentBARS.Metadata.Count; i++)
         {
             IStorageFolder dataFolder = await folderData.CreateFolderAsync(currentBARS.Metadata[i].Path);
@@ -262,7 +264,8 @@ public partial class MainWindow : Window
         AMTAFile bametaData = await CreateBameta();
         BWAVFile bwavData = await CreateBwav();
 
-        if (bametaData.Info.Magic != 1096043841 || bwavData.Header.Magic != 1447122754) throw new Exception("fart");
+        if (bametaData.Info.Magic != 1096043841 || bwavData.Header.Magic != 1447122754) 
+            return;
             
         currentBARS.Metadata.Add(bametaData);
         currentBARS.Tracks.Add(bwavData);
@@ -283,8 +286,28 @@ public partial class MainWindow : Window
         
         if (bametaFile != null)
             return new AMTAFile(await bametaFile.OpenReadAsync()); 
-        else
-            return new AMTAFile();
+        
+        return new AMTAFile();
+    }
+
+    public async void ReplaceBwav(object sender, RoutedEventArgs e)
+    {
+        var newBwav = await CreateBwav();
+
+        if (newBwav.Header.Magic == 1447122754)
+        {
+            currentBARS.Tracks[nodeIndex] = newBwav;
+        }
+    }
+    
+    public async void ReplaceBameta(object sender, RoutedEventArgs e)
+    {
+        var newBameta = await CreateBameta();
+
+        if (newBameta.Info.Magic == 1096043841)
+        {
+            currentBARS.Metadata[nodeIndex] = newBameta;
+        }
     }
     
     public async Task<BWAVFile> CreateBwav()
@@ -300,8 +323,8 @@ public partial class MainWindow : Window
         
         if (bwavFile != null)
             return new BWAVFile(await bwavFile.OpenReadAsync());
-        else
-            return new BWAVFile();
+        
+        return new BWAVFile();
     }
     
     // ---------------------- General File Saving/Opening Dialogs -----------------------
