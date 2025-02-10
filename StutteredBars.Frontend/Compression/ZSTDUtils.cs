@@ -6,23 +6,25 @@ namespace StutteredBars.Frontend.Compression;
 
 public static class ZSTDUtils
 {
-    public static Span<byte> CompressZSTD(this byte[] data)
+    public static Span<byte> CompressZSTD(this byte[] data, bool usesDict = false)
     {
         using Compressor compressor = new(19);
+        if (usesDict) compressor.LoadDictionary(ZSDic.ZSDicFile);
         return compressor.Wrap(data);
     }
 
-    public static Span<byte> DecompressZSTD(this byte[] data)
+    public static Span<byte> DecompressZSTD(this byte[] data, bool usesDict = true)
     {
         using Decompressor decompressor = new();
+        if (usesDict) decompressor.LoadDictionary(ZSDic.ZSDicFile);
         return decompressor.Unwrap(data);
     }
     
-    public static byte[] DecompressZSTDBytes(this byte[] data) => DecompressZSTD(data).ToArray();
-    public static byte[] CompressZSTDBytes(this byte[] data) => CompressZSTD(data).ToArray();
+    public static byte[] DecompressZSTDBytes(this byte[] data, bool usesDict) => DecompressZSTD(data).ToArray();
+    public static byte[] CompressZSTDBytes(this byte[] data, bool usesDict) => CompressZSTD(data).ToArray();
     
-    public static byte[] DecompressZSTDStream(this Stream data) => DecompressZSTD(data.ReadAllBytes()).ToArray();
-    public static byte[] CompressZSTDStream(this Stream data) => DecompressZSTD(data.ReadAllBytes()).ToArray();
+    public static byte[] DecompressZSTDStream(this Stream data, bool usesDict) => DecompressZSTD(data.ReadAllBytes()).ToArray();
+    public static byte[] CompressZSTDStream(this Stream data, bool usesDict) => DecompressZSTD(data.ReadAllBytes()).ToArray();
     
     public static byte[] ReadAllBytes(this Stream inStream)
     {

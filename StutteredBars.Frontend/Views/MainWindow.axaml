@@ -41,7 +41,7 @@
                         <MenuItem Header="Add New Entry" Click="AddNewNode" IsEnabled="{Binding BarsLoaded}"/>
                         <MenuItem Header="Extract All Entries in File" Click="ExtractAll" IsEnabled="{Binding BarsLoaded}"/>
                         <Separator/>
-                        <MenuItem Header="_Open ZSTD Dictionary (ToTK)"/>
+                        <MenuItem Header="_Open ZSTD Dictionary (ToTK)" Click="LoadTotkDict"/>
                     </MenuItem>
                 </Menu>
                 <TextBlock/>

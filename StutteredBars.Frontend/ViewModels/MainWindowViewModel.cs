@@ -19,6 +19,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
     
     [ObservableProperty] private bool barsLoaded = false;
+    [ObservableProperty] private bool zsdicLoaded = false;
 
     [ObservableProperty] private string textData = "                    Load a .bars file to continue!";
     [ObservableProperty] private string barsFilePath = "";

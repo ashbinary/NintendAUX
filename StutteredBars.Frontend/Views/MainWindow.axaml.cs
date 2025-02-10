@@ -1,26 +1,20 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
-using System.IO.IsolatedStorage;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Logging;
 using Avalonia.LogicalTree;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using Avalonia.VisualTree;
 using StutteredBars.Filetypes;
 using StutteredBars.Frontend.Compression;
 using StutteredBars.Frontend.Models;
 using StutteredBars.Frontend.Parsers;
 using StutteredBars.Frontend.ViewModels;
-using YamlDotNet.Serialization.NodeDeserializers;
 
 namespace StutteredBars.Frontend.Views;
 
@@ -65,11 +59,27 @@ public partial class MainWindow : Window
         }
     }
 
+    public async void LoadTotkDict(object sender, RoutedEventArgs e)
+    {
+        var zstdPack = await OpenFile(new FilePickerOpenOptions
+        {
+            Title = "Open ZSTD Dictionary",
+            AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType("ZSTD Dictionaries") { Patterns = ["*.pack.zs", "*.pack", "*.zsdic"] }]
+        });
+        
+        if (zstdPack != null)
+        {
+            ZSDic.LoadDictionary(File.ReadAllBytes(zstdPack.Path.LocalPath));
+            Model.ZsdicLoaded = true;
+        }
+    }
+
     public void LoadBars(IStorageFile barsFile)
     {
         var barsData = File.ReadAllBytes(barsFile.Path.LocalPath);
         Console.WriteLine(barsData.Take(4).ToArray().Last());
-        if (!barsData.Take(4).ToArray().SequenceEqual(Utilities.BARSHeader)) barsData = barsData.DecompressZSTDBytes();
+        if (!barsData.Take(4).ToArray().SequenceEqual(Utilities.BARSHeader)) barsData = barsData.DecompressZSTDBytes(Model.ZsdicLoaded);
         currentBARS = new BARSFile(barsData);
         Model.BarsFilePath = barsFile.Name;
         ReloadNode();
@@ -93,7 +103,7 @@ public partial class MainWindow : Window
             using var stream = await barsFile.OpenWriteAsync();
 
             byte[] savedBars = BARSFile.SoftSave(currentBARS);
-            if (compressFile) savedBars = ZSTDUtils.CompressZSTDBytes(savedBars);
+            if (compressFile) savedBars = ZSTDUtils.CompressZSTDBytes(savedBars, Model.ZsdicLoaded);
             stream.Write(savedBars);
             stream.Flush();
         }
