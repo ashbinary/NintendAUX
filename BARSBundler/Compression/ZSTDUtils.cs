@@ -2,7 +2,7 @@
 using ZstdSharp;
 using System.IO;
 
-namespace StutteredBars.Frontend.Compression;
+namespace BARSBundler.Compression;
 
 public static class ZSTDUtils
 {

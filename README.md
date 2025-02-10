@@ -1,4 +1,4 @@
-# StutteredBars
+# BARSBundler
 Easy C# BARS parser targeting version 5 (Splatoon 3, Tears of the Kingdom, Mario Wonder).
 # Usage
 ```cs

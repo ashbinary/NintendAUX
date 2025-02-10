@@ -1,7 +1,7 @@
 ﻿using System.Text;
-using StutteredBars.Filetypes;
+using BARSBundler.Core.Filetypes;
 
-namespace StutteredBars.Frontend.Parsers;
+namespace BARSBundler.Parsers;
 
 public static class InfoParser
 {

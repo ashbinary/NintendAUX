@@ -1,4 +1,4 @@
-namespace StutteredBars.Filetypes.AMTA;
+namespace BARSBundler.Core.Filetypes.AMTA;
 
 public struct AMTAData // Obviously not actually the name but idc
 {

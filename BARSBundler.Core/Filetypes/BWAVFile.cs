@@ -1,12 +1,14 @@
-namespace StutteredBars.Filetypes;
+using BARSBundler.Core.Helpers;
+
+namespace BARSBundler.Core.Filetypes;
 
 using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
-using StutteredBars.Helpers;
+using Core.Helpers;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
-using StutteredBars.Filetypes.AMTA;
+using Core.Filetypes.AMTA;
 
 public struct FullBWAVFile
 {

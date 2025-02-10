@@ -1,4 +1,4 @@
-﻿namespace StutteredBars.Frontend.Parsers.SARC;
+﻿namespace BARSBundler.Parsers.SARC;
 
 /// <summary>
 /// A class holding information about a file inside a SARC file.

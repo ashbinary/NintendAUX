@@ -1,9 +1,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using StutteredBars.Frontend.ViewModels;
+using BARSBundler.ViewModels;
 
-namespace StutteredBars.Frontend;
+namespace BARSBundler;
 
 public class ViewLocator : IDataTemplate
 {

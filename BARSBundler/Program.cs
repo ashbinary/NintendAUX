@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using System;
 
-namespace StutteredBars.Frontend;
+namespace BARSBundler;
 
 sealed class Program
 {

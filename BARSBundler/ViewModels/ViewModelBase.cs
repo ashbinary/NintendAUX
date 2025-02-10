@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace StutteredBars.Frontend.ViewModels;
+namespace BARSBundler.ViewModels;
 
 public class ViewModelBase : ObservableObject
 {

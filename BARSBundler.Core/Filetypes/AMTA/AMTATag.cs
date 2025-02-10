@@ -1,6 +1,6 @@
-using StutteredBars.Helpers;
+using BARSBundler.Core.Helpers;
 
-namespace StutteredBars.Filetypes.AMTA;
+namespace BARSBundler.Core.Filetypes.AMTA;
 
 public struct AMTATagTable
 {

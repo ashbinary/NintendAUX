@@ -5,9 +5,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
-using StutteredBars.Frontend.Models;
+using BARSBundler.Models;
 
-namespace StutteredBars.Frontend.ViewModels;
+namespace BARSBundler.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {

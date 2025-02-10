@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-namespace StutteredBars.Frontend.Parsers.SARC;
+namespace BARSBundler.Parsers.SARC;
 
 public class SarcUtils
 {

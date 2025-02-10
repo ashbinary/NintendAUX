@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
-using StutteredBars.Frontend.Parsers.SARC;
+using BARSBundler.Parsers.SARC;
 
-namespace StutteredBars.Frontend;
+namespace BARSBundler;
 
 public static class Utilities
 {

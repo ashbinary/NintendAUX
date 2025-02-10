@@ -1,10 +1,10 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using StutteredBars.Filetypes;
-using StutteredBars.Helpers;
+using BARSBundler.Core.Helpers;
+using BARSBundler.Core.Filetypes;
 
-namespace StutteredBars.Filetypes;
+namespace BARSBundler.Core.Filetypes;
 
 public struct BARSFile
 {

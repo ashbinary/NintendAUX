@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Linq;
-using StutteredBars.Frontend.Parsers;
-using StutteredBars.Frontend.Parsers.SARC;
+using BARSBundler.Parsers;
+using BARSBundler.Parsers.SARC;
 
-namespace StutteredBars.Frontend.Compression;
+namespace BARSBundler.Compression;
 
 public static class ZSDic
 {

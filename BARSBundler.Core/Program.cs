@@ -1,6 +1,8 @@
-﻿namespace StutteredBars;
+﻿using BARSBundler.Core.Filetypes;
 
-using StutteredBars.Filetypes;
+namespace BARSBundler.Core;
+
+using Core.Filetypes;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 

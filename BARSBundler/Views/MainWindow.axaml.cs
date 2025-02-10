@@ -10,13 +10,13 @@ using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
-using StutteredBars.Filetypes;
-using StutteredBars.Frontend.Compression;
-using StutteredBars.Frontend.Models;
-using StutteredBars.Frontend.Parsers;
-using StutteredBars.Frontend.ViewModels;
+using BARSBundler.Core.Filetypes;
+using BARSBundler.Compression;
+using BARSBundler.Models;
+using BARSBundler.Parsers;
+using BARSBundler.ViewModels;
 
-namespace StutteredBars.Frontend.Views;
+namespace BARSBundler.Views;
 
 public partial class MainWindow : Window
 {

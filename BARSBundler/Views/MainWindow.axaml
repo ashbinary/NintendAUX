@@ -1,14 +1,14 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:StutteredBars.Frontend.ViewModels"
+        xmlns:vm="using:BARSBundler.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:models="clr-namespace:StutteredBars.Frontend.Models"
+        xmlns:models="clr-namespace:BARSBundler.Models"
         Width="750" Height="420" CanResize="False"
-        x:Class="StutteredBars.Frontend.Views.MainWindow"
+        x:Class="BARSBundler.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="StutteredBars.Frontend">
+        Title="BARS Bundler">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,

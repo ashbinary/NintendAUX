@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace StutteredBars.Frontend.Parsers.SARC;
+namespace BARSBundler.Parsers.SARC;
 
 /// <summary>
 /// A class holding information about a SARC archive file.

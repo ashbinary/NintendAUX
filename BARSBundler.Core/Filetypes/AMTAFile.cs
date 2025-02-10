@@ -1,10 +1,10 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using BARSBundler.Core.Filetypes.AMTA;
+using BARSBundler.Core.Helpers;
 using Microsoft.VisualBasic;
-using StutteredBars.Filetypes.AMTA;
-using StutteredBars.Helpers;
 
-namespace StutteredBars.Filetypes;
+namespace BARSBundler.Core.Filetypes;
 
 // Currently not used.
 // Almost fully functional, but has issues regarding Instrument offsets.

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace StutteredBars.Helpers;
+namespace BARSBundler.Core.Helpers;
 
 /// <summary>
 /// A class for reading binary data from a <see cref="Stream"/>.

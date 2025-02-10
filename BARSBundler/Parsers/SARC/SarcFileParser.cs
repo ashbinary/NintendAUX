@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using StutteredBars.Frontend;
-using StutteredBars.Helpers;
+using BARSBundler;
+using BARSBundler.Core.Helpers;
 
-namespace StutteredBars.Frontend.Parsers.SARC;
+namespace BARSBundler.Parsers.SARC;
 
 /// <summary>
 /// A class for parsing SARC archives.

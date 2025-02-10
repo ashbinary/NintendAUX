@@ -1,10 +1,10 @@
 using System.Data.Common;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using BARSBundler.Core.Helpers;
 using Microsoft.VisualBasic;
-using StutteredBars.Helpers;
 
-namespace StutteredBars.Filetypes.AMTA;
+namespace BARSBundler.Core.Filetypes.AMTA;
 
 public struct MINFFile
 {

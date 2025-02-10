@@ -4,10 +4,10 @@ using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
-using StutteredBars.Frontend.ViewModels;
-using StutteredBars.Frontend.Views;
+using BARSBundler.ViewModels;
+using BARSBundler.Views;
 
-namespace StutteredBars.Frontend;
+namespace BARSBundler;
 
 public partial class App : Application
 {

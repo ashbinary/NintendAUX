@@ -3,9 +3,9 @@ using System.Buffers.Binary;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using StutteredBars.Helpers;
+using BARSBundler.Core.Helpers;
 
-namespace StutteredBars;
+namespace BARSBundler.Core;
 
 /// <summary>
 /// A class for writing binary data to a <see cref="Stream"/>.

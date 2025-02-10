@@ -1,9 +1,9 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks.Dataflow;
-using StutteredBars.Helpers;
+using BARSBundler.Core.Helpers;
 
-namespace StutteredBars.Filetypes.AMTA;
+namespace BARSBundler.Core.Filetypes.AMTA;
 
 public struct AMTAMarkerTable
 {

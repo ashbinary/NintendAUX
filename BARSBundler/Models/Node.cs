@@ -1,4 +1,4 @@
-﻿namespace StutteredBars.Frontend.Models;
+﻿namespace BARSBundler.Models;
 
 using System.Collections.ObjectModel;
 
