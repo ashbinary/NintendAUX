@@ -40,6 +40,7 @@
                     <MenuItem Header="Edit">
                         <MenuItem Header="Add New Entry" Click="AddNewNode" IsEnabled="{Binding BarsLoaded}"/>
                         <MenuItem Header="Extract All Entries in File" Click="ExtractAll" IsEnabled="{Binding BarsLoaded}"/>
+                        <MenuItem Header="Sort Entries Alphabetically" Click="SortNodes" IsEnabled="{Binding BarsLoaded}"/>
                         <Separator/>
                         <MenuItem Header="_Open ZSTD Dictionary (ToTK)" Click="LoadTotkDict"/>
                     </MenuItem>

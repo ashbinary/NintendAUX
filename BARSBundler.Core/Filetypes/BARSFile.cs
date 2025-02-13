@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using BARSBundler.Core.Helpers;
 using BARSBundler.Core.Filetypes;
@@ -40,11 +41,17 @@ public struct BARSFile
     public List<AMTAFile> Metadata;
     public List<BWAVFile> Tracks;
 
-    public BARSFile(byte[] data)
+    public BARSFile(byte[] data) => Read(new MemoryStream(data));
+    public BARSFile(MemoryStream data) => Read(data);
+    
+    public void Read(MemoryStream data)
     {
-        FileReader barsReader = new(new MemoryStream(data));
+        FileReader barsReader = new(data);
 
-        Header = MemoryMarshal.AsRef<BarsHeader>(barsReader.ReadBytes(Unsafe.SizeOf<BarsHeader>()));
+        Header = barsReader.ReadStruct<BarsHeader>();
+        if (Header.MinorVersion != 2) 
+            throw new InvalidDataException("Incorrect BARS file version! Only Version 1.2 is supported.");
+        
         FileHashArray = new uint[Header.FileCount];
 
         for (int i = 0; i < Header.FileCount; i++)
@@ -53,7 +60,7 @@ public struct BARSFile
         EntryArray = new BarsEntry[Header.FileCount];
 
         for (int i = 0; i < Header.FileCount; i++)
-            EntryArray[i] = MemoryMarshal.AsRef<BarsEntry>(barsReader.ReadBytes(Unsafe.SizeOf<BarsEntry>()));
+            EntryArray[i] = barsReader.ReadStruct<BarsEntry>();
 
         ReserveData.FileCount = barsReader.ReadUInt32();
         ReserveData.FileHashes = new uint[ReserveData.FileCount];
@@ -61,8 +68,8 @@ public struct BARSFile
         for (int i = 0; i < ReserveData.FileCount; i++)
             ReserveData.FileHashes[i] = barsReader.ReadUInt32();
 
-        Metadata = new();
-        Tracks = new();
+        Metadata = [];
+        Tracks = [];
 
         for (int i = 0; i < EntryArray.Length; i++)
         {
@@ -82,23 +89,22 @@ public struct BARSFile
         using MemoryStream saveStream = new();
         FileWriter barsWriter = new FileWriter(saveStream);
 
-        barsWriter.Write(MemoryMarshal.AsBytes(new Span<BarsHeader>(ref barsData.Header)));
+        // Write Header data to stream
+        barsWriter.WriteStruct(barsData.Header);
 
-        int newFileCount = barsData.Metadata.Count;
+        // To support adding new entries, create new file count from metadata
+        var newFileCount = barsData.Metadata.Count;
         barsWriter.WriteAt(Marshal.OffsetOf<BarsHeader>("FileCount"), newFileCount); // Use AMTA file amount to calculate data (cannot be dupe)
+        
+        foreach (var metadata in barsData.Metadata)
+            barsWriter.Write(CRC32.Compute(metadata.Path));
+            //pathList.Add(CRC32.Compute(metadata.Path), metadata.Path);
 
-        SortedDictionary<uint, string> pathList = new();
-        foreach (AMTAFile metadata in barsData.Metadata)
-            pathList.Add(CRC32.Compute(metadata.Path), metadata.Path);
-
-        foreach (uint fileHash in pathList.Keys)
-            barsWriter.Write(fileHash);
-
-        long offsetAddress = barsWriter.Position;
+        var offsetAddress = barsWriter.Position;
         long[,] offsets = new long[newFileCount, 2];
 
-        foreach (var temp in offsets)
-            barsWriter.Write(0xDEADBEEF); // Create a temporary area for offsets which will be filled in later
+        for (int i = 0; i < newFileCount; i++)
+            barsWriter.Write(0xDEADBEEFDEADBEEF); // Create a temporary area for offsets which will be filled in later
 
         barsWriter.Write(barsData.ReserveData.FileCount);
         foreach (uint barsHash in barsData.ReserveData.FileHashes)
@@ -127,6 +133,7 @@ public struct BARSFile
             barsWriter.Write((uint)offsets[l, 1]);
         }
 
+        // Finally, save filesize after completing everything
         barsWriter.WriteAt(Marshal.OffsetOf<BarsHeader>("FileSize"), (uint)saveStream.Length);
 
         return saveStream.ToArray();    

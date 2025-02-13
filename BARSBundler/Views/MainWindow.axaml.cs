@@ -44,6 +44,12 @@ public partial class MainWindow : Window
         }
     }
 
+    public void SortNodes(object sender, RoutedEventArgs e)
+    {
+        Model.SortNodes = true;
+        ReloadNode();
+    }
+
     public async void OpenBARSFile(object sender, RoutedEventArgs e)
     {
         var barsFile = await OpenFile(new FilePickerOpenOptions
@@ -101,6 +107,9 @@ public partial class MainWindow : Window
         if (barsFile != null)
         {
             using var stream = await barsFile.OpenWriteAsync();
+            
+            // Re-order here, so the saver will not have issues in-game
+            currentBARS.Metadata = currentBARS.Metadata.OrderBy(path => CRC32.Compute(path.Path)).ToList();
 
             byte[] savedBars = BARSFile.SoftSave(currentBARS);
             if (compressFile) savedBars = ZSTDUtils.CompressZSTDBytes(savedBars, Model.ZsdicLoaded);
@@ -256,6 +265,10 @@ public partial class MainWindow : Window
     public void ReloadNode()
     {
         Model.Nodes.Clear();
+        
+        // Re-order here to sort effectively
+        if (Model.SortNodes)
+            currentBARS.Metadata = currentBARS.Metadata.OrderBy(path => path.Path).ToList();
 
         int entryIndex = 0;
         foreach (AMTAFile file in currentBARS.Metadata)
