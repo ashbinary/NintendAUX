@@ -24,12 +24,11 @@ jobs:
       run: dotnet restore
     - name: Publish build artifacts
       run: dotnet publish --configuration Release --output ./output
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4.6.0
-      with:
-        name: BARSBundler
-        path: ./output 
+    - name: Zip the output folder
+      run: | 
+        Compress-Archive -Path ./output/* -DestinationPath ./BARSBundler.zip
     - name: Create release
       uses: ncipollo/release-action@v1.14.0
       with:
-        artifact: BARSBundler
+        tag: v1.{build}
+        files: ./BARSBundler.zip 
