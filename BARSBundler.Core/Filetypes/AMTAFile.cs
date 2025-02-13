@@ -211,9 +211,7 @@ public struct AMTAFile
     {   
         BaseAddress = amtaReader.Position;
 
-        Info = MemoryMarshal.AsRef<AMTAInfo>(
-            amtaReader.ReadBytes(Unsafe.SizeOf<AMTAInfo>())
-        );
+        Info = amtaReader.ReadStruct<AMTAInfo>();
         
         if (Info.MarkerOffset != 0)
         {
