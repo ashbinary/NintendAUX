@@ -12,7 +12,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -22,7 +22,15 @@ jobs:
         dotnet-version: 9.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+    - name: Publish build artifacts
+      run: dotnet publish --configuration Release --output ./output
+    - name: Zip the output folder
+      run: | 
+        Compress-Archive -Path ./output/* -DestinationPath ./BARSBundler.zip
+    - name: Create release
+      uses: ncipollo/release-action@v1.14.0
+      with:
+        name: v1.{build}
+        tag: latest
+        token: ${{ secrets.APPVEYOR_SECRET }}
+        artifacts: ./BARSBundler.zip 

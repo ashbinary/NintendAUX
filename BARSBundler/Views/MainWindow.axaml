@@ -80,7 +80,7 @@
                         <TextBlock.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Extract (.bwav)" Click="ExtractAsBwav"/>
-                                <MenuItem Header="Replace"/>
+                                <MenuItem Header="Replace" Click="ReplaceBwav"/>
                             </ContextMenu>
                         </TextBlock.ContextMenu>
                     </TextBlock>
@@ -90,7 +90,7 @@
                         <TextBlock.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Extract (.bameta)"  Click="ExtractAsBameta"/>
-                                <MenuItem Header="Replace"/>
+                                <MenuItem Header="Replace" Click="ReplaceBameta"/>
                             </ContextMenu>
                         </TextBlock.ContextMenu>
                     </TextBlock>
