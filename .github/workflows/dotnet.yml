@@ -34,3 +34,8 @@ jobs:
         tag: v1.${{ github.run_number }}
         token: ${{ secrets.APPVEYOR_SECRET }}
         artifacts: ./BARSBundler.zip 
+        body: |
+          BARSBundler **requires** the [.NET Runtime 9.0](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) minimum to work! 
+
+          This was built automatically by the repository!
+          Current commit: `${{ github.event.head_commit.message }}`
