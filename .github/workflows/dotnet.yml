@@ -32,4 +32,5 @@ jobs:
       with:
         name: v1.{build}
         tag: latest
+        token: ${{ secrets.APPVEYOR_TOKEN }}
         artifacts: ./BARSBundler.zip 
