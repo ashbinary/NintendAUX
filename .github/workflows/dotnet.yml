@@ -31,4 +31,5 @@ jobs:
       uses: ncipollo/release-action@v1.14.0
       with:
         name: v1.{build}
+        tag: latest
         artifacts: ./BARSBundler.zip 
