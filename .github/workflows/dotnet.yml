@@ -30,7 +30,7 @@ jobs:
     - name: Create release
       uses: ncipollo/release-action@v1.14.0
       with:
-        name: v1.{{build}}
-        tag: v1.{{build}}
+        name: v1.${{ github.run_number }}
+        tag: v1.${{ github.run_number }}
         token: ${{ secrets.APPVEYOR_SECRET }}
         artifacts: ./BARSBundler.zip 
