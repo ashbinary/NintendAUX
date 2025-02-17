@@ -109,7 +109,7 @@ public partial class MainWindow : Window
             using var stream = await barsFile.OpenWriteAsync();
             
             // Re-order here, so the saver will not have issues in-game
-            currentBARS.Metadata = currentBARS.Metadata.OrderBy(path => CRC32.Compute(path.Path)).ToList();
+            currentBARS.EntryArray = currentBARS.EntryArray.OrderBy(path => CRC32.Compute(path.Bamta.Path)).ToArray();
 
             byte[] savedBars = BARSFile.SoftSave(currentBARS);
             if (compressFile) savedBars = ZSTDUtils.CompressZSTDBytes(savedBars, Model.ZsdicLoaded);
@@ -165,10 +165,7 @@ public partial class MainWindow : Window
             nameTag.IsVisible = true;
             nameTag.Text = newName;
 
-            var sillyMetadata = currentBARS.Metadata[nodeIndex];
-            currentBARS.Metadata.RemoveAt(nodeIndex);
-            sillyMetadata.Path = newName;
-            currentBARS.Metadata.Insert(nodeIndex, sillyMetadata);
+            currentBARS.EntryArray[nodeIndex].Bamta.Path = newName;
         }
     }
 
@@ -177,7 +174,7 @@ public partial class MainWindow : Window
         if (inDeletion || !Model.BarsLoaded) return;
         
         currentNode = ((TreeView)sender).SelectedItem; // dude
-        Model.TextData = InfoParser.ParseData(currentBARS.Metadata[currentNode.ID], currentBARS.Tracks[currentNode.ID]);
+        Model.TextData = InfoParser.ParseData(currentBARS.EntryArray[currentNode.ID].Bamta, currentBARS.EntryArray[currentNode.ID].Bwav);
         
         nodeIndex = currentNode.ID;
         
@@ -194,8 +191,7 @@ public partial class MainWindow : Window
         int nodeIndex = ((BARSEntryNode)currentNode).ID;
         Model.Nodes.RemoveAt(nodeIndex);
         
-        currentBARS.Metadata.RemoveAt(nodeIndex);
-        currentBARS.Tracks.RemoveAt(nodeIndex);
+        Utilities.RemoveAt(ref currentBARS.EntryArray, nodeIndex);
         
         ReloadNode();
         inDeletion = false;
@@ -209,12 +205,12 @@ public partial class MainWindow : Window
             {
                 Title = "Save .bwav File",
                 DefaultExtension = "bwav",
-                SuggestedFileName = currentBARS.Metadata[currentNode.ID].Path + ".bwav"
+                SuggestedFileName = currentBARS.EntryArray[currentNode.ID].Bamta.Path + ".bwav"
             }
         );
 
         using Stream bwavStream = await fileData.OpenWriteAsync();
-            bwavStream.Write(BWAVFile.Save(currentBARS.Tracks[currentNode.ID]));
+            bwavStream.Write(BWAVFile.Save(currentBARS.EntryArray[currentNode.ID].Bwav));
             bwavStream.Flush();
     }
     
@@ -225,12 +221,12 @@ public partial class MainWindow : Window
             {
                 Title = "Save .bameta File",
                 DefaultExtension = "bameta",
-                SuggestedFileName = currentBARS.Metadata[currentNode.ID].Path + ".bameta"
+                SuggestedFileName = currentBARS.EntryArray[currentNode.ID].Bamta.Path + ".bameta"
             }
         );
 
         using Stream amtaStream = await fileData.OpenWriteAsync();
-        amtaStream.Write(AMTAFile.Save(currentBARS.Metadata[currentNode.ID]));
+        amtaStream.Write(AMTAFile.Save(currentBARS.EntryArray[currentNode.ID].Bamta));
         amtaStream.Flush();
     }
 
@@ -246,18 +242,18 @@ public partial class MainWindow : Window
 
         if (folderData == null) return;
 
-        for (int i = 0; i < currentBARS.Metadata.Count; i++)
+        for (int i = 0; i < currentBARS.EntryArray.Length; i++)
         {
-            IStorageFolder dataFolder = await folderData.CreateFolderAsync(currentBARS.Metadata[i].Path);
+            IStorageFolder dataFolder = await folderData.CreateFolderAsync(currentBARS.EntryArray[i].Bamta.Path);
             
-            IStorageFile amtaData = await dataFolder.CreateFileAsync(currentBARS.Metadata[i].Path + ".bameta");
+            IStorageFile amtaData = await dataFolder.CreateFileAsync(currentBARS.EntryArray[i].Bamta.Path + ".bameta");
             using Stream amtaStream = await amtaData.OpenWriteAsync();
-            amtaStream.Write(AMTAFile.Save(currentBARS.Metadata[i]));
+            amtaStream.Write(AMTAFile.Save(currentBARS.EntryArray[i].Bamta));
             amtaStream.Flush();
             
-            IStorageFile bwavData = await dataFolder.CreateFileAsync(currentBARS.Metadata[i].Path + ".bwav");
+            IStorageFile bwavData = await dataFolder.CreateFileAsync(currentBARS.EntryArray[i].Bamta.Path + ".bwav");
             using Stream bwavStream = await bwavData.OpenWriteAsync();
-            bwavStream.Write(BWAVFile.Save(currentBARS.Tracks[i]));
+            bwavStream.Write(BWAVFile.Save(currentBARS.EntryArray[i].Bwav));
             bwavStream.Flush();
         }
     }
@@ -268,12 +264,14 @@ public partial class MainWindow : Window
         
         // Re-order here to sort effectively
         if (Model.SortNodes)
-            currentBARS.Metadata = currentBARS.Metadata.OrderBy(path => path.Path).ToList();
+        {
+            currentBARS.EntryArray = currentBARS.EntryArray.OrderBy(path => path.Bamta.Path).ToArray();
+        }
 
         int entryIndex = 0;
-        foreach (AMTAFile file in currentBARS.Metadata)
+        foreach (BARSFile.BarsEntry file in currentBARS.EntryArray)
         {
-            Model.Nodes.Add(new BARSEntryNode(file.Path, entryIndex, new ObservableCollection<Node>()
+            Model.Nodes.Add(new BARSEntryNode(file.Bamta.Path, entryIndex, new ObservableCollection<Node>()
             {
                 new AMTANode("Metadata (AMTA)", entryIndex),
                 new BWAVNode("Song (BWAV)", entryIndex)
@@ -289,9 +287,12 @@ public partial class MainWindow : Window
 
         if (bametaData.Info.Magic != 1096043841 || bwavData.Header.Magic != 1447122754) 
             return;
-            
-        currentBARS.Metadata.Add(bametaData);
-        currentBARS.Tracks.Add(bwavData);
+
+        BARSFile.BarsEntry newEntry = new BARSFile.BarsEntry();
+        newEntry.Bamta = bametaData;
+        newEntry.Bwav = bwavData;
+        
+        Utilities.AddToEnd(ref currentBARS.EntryArray, newEntry);
         
         ReloadNode();
     }
@@ -319,7 +320,7 @@ public partial class MainWindow : Window
 
         if (newBwav.Header.Magic == 1447122754)
         {
-            currentBARS.Tracks[nodeIndex] = newBwav;
+            currentBARS.EntryArray[nodeIndex].Bwav = newBwav;
         }
     }
     
@@ -329,7 +330,7 @@ public partial class MainWindow : Window
 
         if (newBameta.Info.Magic == 1096043841)
         {
-            currentBARS.Metadata[nodeIndex] = newBameta;
+            currentBARS.EntryArray[nodeIndex].Bamta = newBameta;
         }
     }
     

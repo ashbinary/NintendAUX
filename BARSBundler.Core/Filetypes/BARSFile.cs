@@ -25,6 +25,8 @@ public struct BARSFile
     {
         public uint BamtaOffset;
         public uint BwavOffset;
+        public AMTAFile Bamta;
+        public BWAVFile Bwav;
     }
 
     public struct BarsReserveData
@@ -37,9 +39,6 @@ public struct BARSFile
     public uint[] FileHashArray;
     public BarsEntry[] EntryArray;
     public BarsReserveData ReserveData;
-
-    public List<AMTAFile> Metadata;
-    public List<BWAVFile> Tracks;
 
     public BARSFile(byte[] data) => Read(new MemoryStream(data));
     public BARSFile(MemoryStream data) => Read(data);
@@ -60,7 +59,10 @@ public struct BARSFile
         EntryArray = new BarsEntry[Header.FileCount];
 
         for (int i = 0; i < Header.FileCount; i++)
-            EntryArray[i] = barsReader.ReadStruct<BarsEntry>();
+        {
+            EntryArray[i].BamtaOffset = barsReader.ReadUInt32();
+            EntryArray[i].BwavOffset = barsReader.ReadUInt32();
+        }
 
         ReserveData.FileCount = barsReader.ReadUInt32();
         ReserveData.FileHashes = new uint[ReserveData.FileCount];
@@ -68,19 +70,16 @@ public struct BARSFile
         for (int i = 0; i < ReserveData.FileCount; i++)
             ReserveData.FileHashes[i] = barsReader.ReadUInt32();
 
-        Metadata = [];
-        Tracks = [];
-
         for (int i = 0; i < EntryArray.Length; i++)
         {
             barsReader.Position = EntryArray[i].BwavOffset;
-            Tracks.Add(new BWAVFile(ref barsReader));
+            EntryArray[i].Bwav = new BWAVFile(ref barsReader);
         }
 
         for (int i = 0; i < EntryArray.Length; i++)
         {
             barsReader.Position = EntryArray[i].BamtaOffset;
-            Metadata.Add(new AMTAFile(ref barsReader));
+            EntryArray[i].Bamta = new AMTAFile(ref barsReader);
         }
     }
 
@@ -93,11 +92,11 @@ public struct BARSFile
         barsWriter.WriteStruct(barsData.Header);
 
         // To support adding new entries, create new file count from metadata
-        var newFileCount = barsData.Metadata.Count;
+        var newFileCount = barsData.EntryArray.Length;
         barsWriter.WriteAt(Marshal.OffsetOf<BarsHeader>("FileCount"), newFileCount); // Use AMTA file amount to calculate data (cannot be dupe)
         
-        foreach (var metadata in barsData.Metadata)
-            barsWriter.Write(CRC32.Compute(metadata.Path));
+        foreach (var entry in barsData.EntryArray)
+            barsWriter.Write(CRC32.Compute(entry.Bamta.Path));
             //pathList.Add(CRC32.Compute(metadata.Path), metadata.Path);
 
         var offsetAddress = barsWriter.Position;
@@ -110,19 +109,19 @@ public struct BARSFile
         foreach (uint barsHash in barsData.ReserveData.FileHashes)
             barsWriter.Write(barsHash);
 
-        for (int a = 0; a < barsData.Metadata.Count; a++)
+        for (int a = 0; a < barsData.EntryArray.Length; a++)
         {
             offsets[a, 0] = barsWriter.Position;
-            barsWriter.Write(AMTAFile.Save(barsData.Metadata[a]));
+            barsWriter.Write(AMTAFile.Save(barsData.EntryArray[a].Bamta));
             barsWriter.Align(0x4);
         }
 
         barsWriter.Align(0x20);
 
-        for (int a = 0; a < barsData.Tracks.Count; a++)
+        for (int a = 0; a < barsData.EntryArray.Length; a++)
         {
             offsets[a, 1] = barsWriter.Position;
-            barsWriter.Write(BWAVFile.Save(barsData.Tracks[a]));
+            barsWriter.Write(BWAVFile.Save(barsData.EntryArray[a].Bwav));
             //barsWriter.Align(0x4);
         }
         

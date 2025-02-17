@@ -98,4 +98,22 @@ public static class Utilities
     public static byte[] AMTAHeader => [0x41, 0x4D, 0x54, 0x41];
     public static byte[] SARCHeader => [0x53, 0x41, 0x52, 0x43];
     public static byte[] ZSDicHeader => [0x37, 0xA4, 0x30, 0xEC];
+    
+    public static void RemoveAt<T>(ref T[] arr, int index)
+    {
+        for (int a = index; a < arr.Length - 1; a++)
+        {
+            // moving elements downwards, to fill the gap at [index]
+            arr[a] = arr[a + 1];
+        }
+        // finally, let's decrement Array's size by one
+        Array.Resize(ref arr, arr.Length - 1);
+    }
+    
+    public static void AddToEnd<T>(ref T[] arr, T item)
+    {
+        Array.Resize(ref arr, arr.Length + 1); // Increase size by 1
+
+        arr[arr.Length - 1] = item; // Insert new item at the given index
+    }
 }
