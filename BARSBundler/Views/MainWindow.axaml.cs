@@ -179,7 +179,7 @@ public partial class MainWindow : Window
         currentNode = ((TreeView)sender).SelectedItem; // dude
         Model.TextData = InfoParser.ParseData(currentBARS.Metadata[currentNode.ID], currentBARS.Tracks[currentNode.ID]);
         
-        nodeIndex = ((TreeView)sender).Items.ToList().IndexOf(currentNode);
+        nodeIndex = currentNode.ID;
         
     }
 
