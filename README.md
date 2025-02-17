@@ -1,5 +1,5 @@
 # BARSBundler
-GUI C# BARS parser targeting BARS v5 (Splatoon 3, The Legend of Zelda: Tears of the Kingdom, Super Mario Bros. Wonder). Has support for loading BARS files, adding entries, removing entries, and renaming them.
+GUI C# BARS parser targeting BARS, BWAV, and AMTAv5 (used in Splatoon 3, The Legend of Zelda: Tears of the Kingdom, Super Mario Bros. Wonder). Has support for loading BARS files, adding entries, removing entries, and renaming them.
 
 ![BARSBundler](https://raw.githubusercontent.com/ashbinary/BARSBundler/refs/heads/main/readme_image.png)
 
