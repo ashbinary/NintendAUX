@@ -14,6 +14,7 @@ using BARSBundler.Core.Filetypes;
 using BARSBundler.Compression;
 using BARSBundler.Models;
 using BARSBundler.Parsers;
+using BARSBundler.Services;
 using BARSBundler.ViewModels;
 
 namespace BARSBundler.Views;
@@ -52,7 +53,7 @@ public partial class MainWindow : Window
 
     public async void OpenBARSFile(object sender, RoutedEventArgs e)
     {
-        var barsFile = await OpenFile(new FilePickerOpenOptions
+        var barsFile = await FileDialogService.OpenFile(new FilePickerOpenOptions
         {
             Title = "Open BARS File",
             AllowMultiple = false,
@@ -60,14 +61,12 @@ public partial class MainWindow : Window
         });
         
         if (barsFile != null)
-        {
             LoadBars(barsFile);
-        }
     }
 
     public async void LoadTotkDict(object sender, RoutedEventArgs e)
     {
-        var zstdPack = await OpenFile(new FilePickerOpenOptions
+        var zstdPack = await FileDialogService.OpenFile(new FilePickerOpenOptions
         {
             Title = "Open ZSTD Dictionary",
             AllowMultiple = false,
@@ -92,31 +91,10 @@ public partial class MainWindow : Window
         Model.BarsLoaded = true;
     }
 
-    public async void SaveDecompressedBARSFile(object sender, RoutedEventArgs e) => SaveBARSFile(false);
-    public async void SaveCompressedBARSFile(object sender, RoutedEventArgs e) => SaveBARSFile(true);
-
-    public async void SaveBARSFile(bool compressFile)
-    {
-        var barsFile = await SaveFile(new FilePickerSaveOptions()
-        {
-            Title = "Save BARS File",
-            DefaultExtension = compressFile ? "bars.zs" : "bars",
-            SuggestedFileName = Model.BarsFilePath
-        });
-        
-        if (barsFile != null)
-        {
-            using var stream = await barsFile.OpenWriteAsync();
-            
-            // Re-order here, so the saver will not have issues in-game
-            currentBARS.EntryArray = currentBARS.EntryArray.OrderBy(path => CRC32.Compute(path.Bamta.Path)).ToArray();
-
-            byte[] savedBars = BARSFile.SoftSave(currentBARS);
-            if (compressFile) savedBars = ZSTDUtils.CompressZSTDBytes(savedBars, Model.ZsdicLoaded);
-            stream.Write(savedBars);
-            stream.Flush();
-        }
-    }
+    public async void SaveDecompressedBARSFile(object sender, RoutedEventArgs e) => await SaveBARSFile(false);
+    public async void SaveCompressedBARSFile(object sender, RoutedEventArgs e) => await SaveBARSFile(true);
+    
+    public async Task SaveBARSFile(bool compressed) => await BarsHandlingService.SaveBARSFile(currentBARS, compressed, Model.BarsFilePath, Model.ZsdicLoaded);
 
     public void RenameBARSFile(object sender, RoutedEventArgs e)
     {
@@ -180,215 +158,49 @@ public partial class MainWindow : Window
         
     }
 
-    public void ExitApplication(object? sender, RoutedEventArgs e)
-    {
-        Environment.Exit(0);
-    }
+    public void ExitApplication(object? sender, RoutedEventArgs e) => Environment.Exit(0);
 
     public void DeleteBARSEntry(object? sender, RoutedEventArgs e)
     {
         inDeletion = true; 
-        int nodeIndex = ((BARSEntryNode)currentNode).ID;
-        Model.Nodes.RemoveAt(nodeIndex);
         
-        Utilities.RemoveAt(ref currentBARS.EntryArray, nodeIndex);
-        
+        Utilities.RemoveAt(ref currentBARS.EntryArray, (currentNode as BARSEntryNode).ID);
         ReloadNode();
-        inDeletion = false;
-        Console.WriteLine("removed node");
-    }
-
-    public async void ExtractAsBwav(object? sender, RoutedEventArgs e)
-    {
-        IStorageFile fileData = await SaveFile(
-            new FilePickerSaveOptions()
-            {
-                Title = "Save .bwav File",
-                DefaultExtension = "bwav",
-                SuggestedFileName = currentBARS.EntryArray[currentNode.ID].Bamta.Path + ".bwav"
-            }
-        );
-
-        using Stream bwavStream = await fileData.OpenWriteAsync();
-            bwavStream.Write(BWAVFile.Save(currentBARS.EntryArray[currentNode.ID].Bwav));
-            bwavStream.Flush();
-    }
-    
-    public async void ExtractAsBameta(object? sender, RoutedEventArgs e)
-    {
-        IStorageFile fileData = await SaveFile(
-            new FilePickerSaveOptions()
-            {
-                Title = "Save .bameta File",
-                DefaultExtension = "bameta",
-                SuggestedFileName = currentBARS.EntryArray[currentNode.ID].Bamta.Path + ".bameta"
-            }
-        );
-
-        using Stream amtaStream = await fileData.OpenWriteAsync();
-        amtaStream.Write(AMTAFile.Save(currentBARS.EntryArray[currentNode.ID].Bamta));
-        amtaStream.Flush();
-    }
-
-    public async void ExtractAll(object? sender, RoutedEventArgs e)
-    {
-        IStorageFolder folderData = await OpenFolder(
-            new FolderPickerOpenOptions()
-            {
-                Title = "Open Folder to Save Files In",
-                AllowMultiple = false
-            }
-        );
-
-        if (folderData == null) return;
-
-        for (int i = 0; i < currentBARS.EntryArray.Length; i++)
-        {
-            IStorageFolder dataFolder = await folderData.CreateFolderAsync(currentBARS.EntryArray[i].Bamta.Path);
-            
-            IStorageFile amtaData = await dataFolder.CreateFileAsync(currentBARS.EntryArray[i].Bamta.Path + ".bameta");
-            using Stream amtaStream = await amtaData.OpenWriteAsync();
-            amtaStream.Write(AMTAFile.Save(currentBARS.EntryArray[i].Bamta));
-            amtaStream.Flush();
-            
-            IStorageFile bwavData = await dataFolder.CreateFileAsync(currentBARS.EntryArray[i].Bamta.Path + ".bwav");
-            using Stream bwavStream = await bwavData.OpenWriteAsync();
-            bwavStream.Write(BWAVFile.Save(currentBARS.EntryArray[i].Bwav));
-            bwavStream.Flush();
-        }
-    }
-
-    public void ReloadNode()
-    {
-        Model.Nodes.Clear();
         
-        // Re-order here to sort effectively
-        if (Model.SortNodes)
-        {
-            currentBARS.EntryArray = currentBARS.EntryArray.OrderBy(path => path.Bamta.Path).ToArray();
-        }
-
-        int entryIndex = 0;
-        foreach (BARSFile.BarsEntry file in currentBARS.EntryArray)
-        {
-            Model.Nodes.Add(new BARSEntryNode(file.Bamta.Path, entryIndex, new ObservableCollection<Node>()
-            {
-                new AMTANode("Metadata (AMTA)", entryIndex),
-                new BWAVNode("Song (BWAV)", entryIndex)
-            }));
-            entryIndex++;
-        }
+        inDeletion = false;
     }
+
+    public async void ExtractAsBwav(object? sender, RoutedEventArgs e) => 
+        await FileExtractService.ExtractBwavWithDialog(currentBARS.EntryArray[currentNode.ID]);
+    
+    public async void ExtractAsBameta(object? sender, RoutedEventArgs e) => 
+        await FileExtractService.ExtractBametaWithDialog(currentBARS.EntryArray[currentNode.ID]);
+
+    public async void ExtractAll(object? sender, RoutedEventArgs e) =>
+        await FileExtractService.ExtractAllEntries(currentBARS);
+
+    public void ReloadNode() => Model.Nodes = NodeService.ReloadNode(Model.Nodes, ref currentBARS, Model.SortNodes);
 
     public async void AddNewNode(object? sender, RoutedEventArgs e)
     {
-        AMTAFile bametaData = await CreateBameta();
-        BWAVFile bwavData = await CreateBwav();
-
-        if (bametaData.Info.Magic != 1096043841 || bwavData.Header.Magic != 1447122754) 
-            return;
-
-        BARSFile.BarsEntry newEntry = new BARSFile.BarsEntry();
-        newEntry.Bamta = bametaData;
-        newEntry.Bwav = bwavData;
-        
-        Utilities.AddToEnd(ref currentBARS.EntryArray, newEntry);
-        
+        BARSFile.BarsEntry entry = await NodeService.CreateNewEntry();
+        if (entry.BamtaOffset == 0xDEADBEEF) return;
+        Utilities.AddToEnd(ref currentBARS.EntryArray, entry);
         ReloadNode();
-    }
-
-    public async Task<AMTAFile> CreateBameta()
-    {
-        IStorageFile bametaFile = await OpenFile(
-            new FilePickerOpenOptions()
-            {
-                Title = "Open .bameta File",
-                FileTypeFilter = [new FilePickerFileType(".bameta files") { Patterns = ["*.bameta"] }],
-                AllowMultiple = false
-            }
-        );
-        
-        if (bametaFile != null)
-            return new AMTAFile(await bametaFile.OpenReadAsync()); 
-        
-        return new AMTAFile();
     }
 
     public async void ReplaceBwav(object sender, RoutedEventArgs e)
     {
-        var newBwav = await CreateBwav();
-
+        var newBwav = await BarsEntryService.CreateBwav();
         if (newBwav.Header.Magic == 1447122754)
-        {
             currentBARS.EntryArray[nodeIndex].Bwav = newBwav;
-        }
     }
     
     public async void ReplaceBameta(object sender, RoutedEventArgs e)
     {
-        var newBameta = await CreateBameta();
-
+        var newBameta = await BarsEntryService.CreateBameta();
         if (newBameta.Info.Magic == 1096043841)
-        {
-            currentBARS.EntryArray[nodeIndex].Bamta = newBameta;
-        }
+            currentBARS.EntryArray[nodeIndex].Bamta = await BarsEntryService.CreateBameta();
     }
     
-    public async Task<BWAVFile> CreateBwav()
-    {
-        IStorageFile bwavFile = await OpenFile(
-            new FilePickerOpenOptions()
-            {
-                Title = "Open .bwav File",
-                FileTypeFilter = [new FilePickerFileType(".bwav files") { Patterns = ["*.bwav"] }],
-                AllowMultiple = false
-            }
-        );
-        
-        if (bwavFile != null)
-            return new BWAVFile(await bwavFile.OpenReadAsync());
-        
-        return new BWAVFile();
-    }
-    
-    // ---------------------- General File Saving/Opening Dialogs -----------------------
-    
-    public async Task<IStorageFile> SaveFile(FilePickerSaveOptions options)
-    {
-        if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            var storageProvider = desktop.MainWindow?.StorageProvider;
-            var files = await storageProvider.SaveFilePickerAsync(options);
-            if (files != null)
-                return files;
-        }
-
-        return null;
-    }
-    
-    public async Task<IStorageFolder> OpenFolder(FolderPickerOpenOptions options)
-    {
-        if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            var storageProvider = desktop.MainWindow?.StorageProvider;
-            var files = await storageProvider.OpenFolderPickerAsync(options);
-            if (files.Count > 0)
-                return files[0];
-        }
-
-        return null;
-    }
-    
-    public async Task<IStorageFile> OpenFile(FilePickerOpenOptions options)
-    {
-        if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            var storageProvider = desktop.MainWindow?.StorageProvider;
-            var files = await storageProvider.OpenFilePickerAsync(options);
-            if (files.Count > 0)
-                return files[0];
-        }
-
-        return null;
-    }
 }

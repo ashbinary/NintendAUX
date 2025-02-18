@@ -18,9 +18,9 @@ public class Node
 
 public enum NodeType
 {
-    BARSRoot,
     BARSEntry,
     BWAV,
+    BWAVChannel,
     AMTA,
     Unknown
 }
