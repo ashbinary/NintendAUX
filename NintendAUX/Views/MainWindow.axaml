@@ -1,0 +1,225 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:NintendAUX.ViewModels"
+        xmlns:models="clr-namespace:NintendAUX.Models"
+        xmlns:converters="using:NintendAUX.Converters"
+        xmlns:controls="using:NintendAUX.Views.Controls"
+        Width="750" Height="420" CanResize="False"
+        x:Class="NintendAUX.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="BARS Bundler">
+
+    <Window.Resources>
+        <converters:TypeConverter x:Key="TypeConverter"/>
+        <converters:NodePropertyConverter x:Key="NodePropertyConverter"/>
+    </Window.Resources>
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="390" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <DockPanel Margin="5">
+                <Menu DockPanel.Dock="Top">
+                    <MenuItem Header="_File">
+                        <MenuItem Header="_Open..." Click="OpenFile" />
+                        <MenuItem Header="_Save File" Click="SaveDecompressedFile" IsEnabled="{Binding FileLoaded}" />
+                        <MenuItem Header="_Save (Compressed)" Click="SaveCompressedFile"
+                                  IsEnabled="{Binding ArchiveLoaded}" />
+                        <Separator />
+                        <MenuItem Header="_Exit" Click="ExitApplication" />
+                    </MenuItem>
+                    <MenuItem Header="Edit">
+                        <MenuItem Header="Add New Entry" Click="AddNewNode" IsEnabled="{Binding FileLoaded}" />
+                        <MenuItem Header="Extract All Entries in File" Click="ExtractAll"
+                                  IsEnabled="{Binding FileLoaded}" />
+                        <MenuItem Header="Sort Entries Alphabetically" Click="SortNodes"
+                                  IsEnabled="{Binding FileLoaded}" />
+                        <Separator />
+                        <MenuItem Header="_Open ZSTD Dictionary (ToTK)" Click="LoadTotkDict" />
+                    </MenuItem>
+                </Menu>
+                <TextBlock />
+            </DockPanel>
+
+            <TextBlock Grid.Column="1" Text="{Binding BarsFilePath}"
+                       FontSize="13"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Top"
+                       TextWrapping="WrapWithOverflow" Margin="10,5" />
+        </Grid>
+        <Grid x:Name="AllArea" Grid.Row="1" DragDrop.AllowDrop="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <TreeView Margin="2,0,5,5" x:Name="treeView" ItemsSource="{Binding Nodes}"
+                      SelectedItem="{Binding SelectedNode, Mode=TwoWay}" SelectionChanged="ChangeDisplayedInfo">
+                <TreeView.DataTemplates>
+                    <TreeDataTemplate DataType="models:BARSEntryNode" ItemsSource="{Binding SubNodes}">
+                        <StackPanel x:Name="PanelThing">
+                            <TextBox x:Name="RenameBox" IsVisible="False" KeyDown="HideTextBox" />
+                            <TextBlock Text="{Binding Title}">
+                                <TextBlock.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Delete Entry" Click="DeleteBARSEntry" />
+                                        <MenuItem Header="Rename Entry" Click="RenameBarsEntry" />
+                                    </ContextMenu>
+                                </TextBlock.ContextMenu>
+                            </TextBlock>
+                        </StackPanel>
+                    </TreeDataTemplate>
+                    <TreeDataTemplate DataType="models:BWAVNode" ItemsSource="{Binding Channels}">
+                        <TextBlock Text="{Binding Title}">
+                            <TextBlock.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Extract (.bwav)" Click="ExtractAsBwav" />
+                                    <MenuItem Header="Extract (.wav)" Click="ExtractAsWav" />
+                                    <MenuItem Header="Replace" Click="ReplaceBwav" />
+                                </ContextMenu>
+                            </TextBlock.ContextMenu>
+                        </TextBlock>
+                    </TreeDataTemplate>
+                    <TreeDataTemplate DataType="models:BWAVChannelNode">
+                        <TextBlock Text="{Binding Title}">
+                            <TextBlock.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Extract Channel (.wav)" Click="ExtractAsWav" />
+                                </ContextMenu>
+                            </TextBlock.ContextMenu>
+                        </TextBlock>
+                    </TreeDataTemplate>
+                    <TreeDataTemplate DataType="models:BWAVStereoChannelNode" ItemsSource="{Binding Channels}">
+                        <TextBlock Text="{Binding Title}">
+                            <TextBlock.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Extract Stereo Channel (.wav)" Click="ExtractAsWav" />
+                                </ContextMenu>
+                            </TextBlock.ContextMenu>
+                        </TextBlock>
+                    </TreeDataTemplate>
+                    <TreeDataTemplate DataType="models:AMTANode">
+                        <TextBlock Text="{Binding Title}">
+                            <TextBlock.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Extract (.bameta)" Click="ExtractAsBameta" />
+                                    <MenuItem Header="Replace" Click="ReplaceBameta" />
+                                </ContextMenu>
+                            </TextBlock.ContextMenu>
+                        </TextBlock>
+                    </TreeDataTemplate>
+                </TreeView.DataTemplates>
+            </TreeView>
+            
+            <Border Grid.Column="1" Background="#404040" Margin="2,0,5,5" Padding="10">
+                <StackPanel x:Name="nodeInfoPanel">
+                    <!-- Default content when no file is loaded -->
+                    <TextBlock Text="Load a .bars or .bwav file to continue!"
+                               FontSize="14"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Center"
+                               TextWrapping="Wrap"
+                               IsVisible="{Binding !FileLoaded}" />
+                    
+                    <!-- BARS Entry Node content -->
+                    <StackPanel IsVisible="{Binding SelectedNode, Converter={StaticResource TypeConverter}, ConverterParameter={x:Type models:BARSEntryNode}}">
+                        <controls:InfoBlock Label="Entry Name" Value="{Binding SelectedNode.Title}"/>
+                        <controls:InfoBlock 
+                            Label="Metadata File Offset"
+                            Value="{Binding SelectedNode, 
+                                    Converter={StaticResource NodePropertyConverter}, 
+                                    ConverterParameter=Data.AmtaOffset.AsHex}"/>
+                        <controls:InfoBlock 
+                            Label="Song File Offset"
+                            Value="{Binding SelectedNode, 
+                                    Converter={StaticResource NodePropertyConverter}, 
+                                    ConverterParameter=Data.BwavOffset.AsHex}"/>
+                    </StackPanel>
+                    
+                    <!-- BWAV Node content -->
+                    <StackPanel IsVisible="{Binding SelectedNode, Converter={StaticResource TypeConverter}, ConverterParameter={x:Type models:BWAVNode}}">
+                        <controls:InfoBlock 
+                            Label="Prefetch File?"
+                            Value="{Binding SelectedNode, 
+                                    Converter={StaticResource NodePropertyConverter}, 
+                                    ConverterParameter=Data.IsPrefetch}"/>
+                        <controls:InfoBlock 
+                            Label="Number of Channels"
+                            Value="{Binding SelectedNode, 
+                                    Converter={StaticResource NodePropertyConverter}, 
+                                    ConverterParameter=Data.ChannelCount}"/>
+                    </StackPanel>
+                    
+                    <!-- BWAV Channel Node content -->
+                    <StackPanel IsVisible="{Binding SelectedNode, Converter={StaticResource TypeConverter}, ConverterParameter={x:Type models:BWAVChannelNode}}">
+                        <controls:InfoBlock 
+                            Label="Channel Encoding"
+                            Value="{Binding SelectedNode, 
+                                    Converter={StaticResource NodePropertyConverter}, 
+                                    ConverterParameter=Data.Encoding}"/>
+                        <controls:InfoBlock 
+                            Label="Channel Pan"
+                            Value="{Binding SelectedNode, 
+                                    Converter={StaticResource NodePropertyConverter}, 
+                                    ConverterParameter=Data.ChannelPan}"/>
+                        <controls:InfoBlock 
+                            Label="Sample Count"
+                            Value="{Binding SelectedNode, 
+                                    Converter={StaticResource NodePropertyConverter}, 
+                                    ConverterParameter=Data.SampleCount}"/>
+                        <controls:InfoBlock 
+                            Label="Sample Rate"
+                            Value="{Binding SelectedNode, 
+                                    Converter={StaticResource NodePropertyConverter}, 
+                                    ConverterParameter=Data.SampleRate}"/>
+                        <!-- <controls:InfoBlock  -->
+                        <!--     Label="Loop Point" -->
+                        <!--     Value="{Binding SelectedNode,  -->
+                        <!--             Converter={StaticResource NodePropertyConverter},  -->
+                        <!--             ConverterParameter=Data.LoopEnd}"/> -->
+                    </StackPanel>
+                    
+                    <!-- AMTA Node content -->
+                    <StackPanel IsVisible="{Binding SelectedNode, Converter={StaticResource TypeConverter}, ConverterParameter={x:Type models:AMTANode}}">
+                        <controls:InfoBlock 
+                            Label="Marker Table Offset"
+                            Value="{Binding SelectedNode, 
+                                    Converter={StaticResource NodePropertyConverter}, 
+                                    ConverterParameter=Data.MarkerOffset.AsHex}"/>
+                        <controls:InfoBlock 
+                            Label="MINF Offset"
+                            Value="{Binding SelectedNode, 
+                                    Converter={StaticResource NodePropertyConverter}, 
+                                    ConverterParameter=Data.MinfOffset.AsHex}"/>
+                        <controls:InfoBlock 
+                            Label="Tag Offset"
+                            Value="{Binding SelectedNode, 
+                                    Converter={StaticResource NodePropertyConverter}, 
+                                    ConverterParameter=Data.TagOffset.AsHex}"/>
+                        <controls:InfoBlock 
+                            Label="Number of Sources"
+                            Value="{Binding SelectedNode, 
+                                    Converter={StaticResource NodePropertyConverter}, 
+                                    ConverterParameter=Data.SourceCount}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+
+</Window>

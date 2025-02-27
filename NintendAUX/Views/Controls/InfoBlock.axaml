@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="NintendAUX.Views.Controls.InfoBlock"
+             x:DataType="controls:InfoBlock"
+             xmlns:controls="using:NintendAUX.Views.Controls">
+    
+    <UserControl.Styles>
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
+        </Style>
+        <Style Selector="TextBlock.value">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+    </UserControl.Styles>
+
+    <StackPanel>
+        <TextBlock x:Name="LabelBlock" 
+                   Classes="label"
+                   Text="{Binding $parent[controls:InfoBlock].Label}"
+                   FontWeight="Bold"
+                   IsVisible="{Binding $parent[controls:InfoBlock].Label, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+        <TextBlock x:Name="ValueBlock" 
+                   Classes="value"
+                   Text="{Binding $parent[controls:InfoBlock].Value}"/>
+    </StackPanel>
+</UserControl> 
