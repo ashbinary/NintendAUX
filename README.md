@@ -1,11 +1,21 @@
-# BARSBundler
-GUI C# BARS parser targeting BARS, BWAV, and AMTAv5 (used in Splatoon 3, The Legend of Zelda: Tears of the Kingdom, Super Mario Bros. Wonder). Has support for loading BARS files, adding entries, removing entries, and renaming them.
+# NintendAUX
+<img src="https://raw.githubusercontent.com/ashbinary/NintendAUX/refs/heads/main/logo.png" width="150" title="NintendAUX logo"/>
 
-![BARSBundler](https://raw.githubusercontent.com/ashbinary/BARSBundler/refs/heads/main/readme_image.png)
+**NintendAUX** (pronounced /nɪnˈtɛndoʊ/) is a GUI Avalonia-based editor for various new NintendoWare file formats, specifically **BARS (Binary Audio Resource)** files and **BWAV (Binary Wave)** files. AMTA (Audio Metadata) files are partially supported aswell, but support past what exists at the moment is not planned for the future due to the complexity of the filetype.
 
-# Credits
-Watertoon - Created the original BARS v5 hexpat used to create the backend for the tool.
+## Current Support
+|Game|Importing|Editing/Exporting|
+|:-:|:-:|:-:|
+|Splatoon 3|✓|✓ (mostly)|
+|Tears of the Kingdom|X|X|
+|Super Mario Wonder|X|X|
+|Earlier BARS Versions|X|X|
 
-AeonSake - FileWriter, FileReader, and SARC library are taken from [their Nintendo-Tools repository.](https://gitlab.com/AeonSake/nintendo-tools)
+## Credits
+**VGAudio** - Original implementation of the [ADPCM decoder](https://github.com/Thealexbarney/VGAudio/blob/master/src/VGAudio/Codecs/GcAdpcm/GcAdpcmDecoder.cs) used in the tool.
 
-NachoL - Tested the features of the program and helped find resources regarding the BARS file format.
+**Watertoon** - Documentation of the file formats used in NintendAUX.
+
+**AeonSake** - Creator of NintendAUX's [FileWriter, FileReader, and SARC library](https://gitlab.com/AeonSake/nintendo-tools)
+
+**NachoL** - Helped with beta-testing early versions of NintendAUX and finding resources.
