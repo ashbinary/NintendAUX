@@ -66,6 +66,10 @@ public class FileExtractService
 
         if (extractionFolder is null) return;
 
-        foreach (var entry in barsFile.EntryArray) await ExtractEntry(entry, extractionFolder);
+        foreach (var entry in barsFile.EntryArray)
+        {
+            IStorageFolder dataFolder = await extractionFolder.CreateFolderAsync(entry.Bamta.Path);
+            await ExtractEntry(entry, dataFolder);
+        }
     }
 }

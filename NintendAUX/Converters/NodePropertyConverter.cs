@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using Avalonia.Data.Converters;
 using NintendAUX.Models;
+using NintendAUX.ViewModels;
 
 namespace NintendAUX.Converters
 {
@@ -74,7 +75,8 @@ namespace NintendAUX.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            new NotImplementedException().CreateExceptionDialog();
+            return null;
         }
     }
 } 

@@ -48,7 +48,7 @@ public static class FileLoadingService
         {
             InputFileType.Bars => LoadBarsFile(fileData),
             InputFileType.Bwav => LoadBwavFile(fileData),
-            _ => throw new NotImplementedException()
+            _ => await new NotImplementedException().CreateExceptionDialog()
         });
     }
 

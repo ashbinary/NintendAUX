@@ -1,6 +1,7 @@
 using System;
 using NintendAUX.Filetypes.Archive;
 using NintendAUX.Filetypes.Audio;
+using NintendAUX.ViewModels;
 
 namespace NintendAUX.Filetypes.Generic;
 
@@ -31,7 +32,7 @@ public class AudioFile
     public BarsFile AsBarsFile()
     {
         if (!IsBarsFile)
-            throw new InvalidOperationException("This AudioFile is not a BARSFile");
+            new InvalidOperationException("This AudioFile is not a BARSFile").CreateExceptionDialog();
 
         return (BarsFile)_file;
     }
@@ -39,7 +40,7 @@ public class AudioFile
     public BwavFile AsBwavFile()
     {
         if (!IsBwavFile)
-            throw new InvalidOperationException("This AudioFile is not a BWAVFile");
+            new InvalidOperationException("This AudioFile is not a BWAVFile").CreateExceptionDialog();
 
         return (BwavFile)_file;
     }
@@ -47,7 +48,7 @@ public class AudioFile
     public void RemoveEntryAt(int index)
     {
         if (!IsBarsFile)
-            throw new InvalidOperationException("This AudioFile is not a BARSFile");
+            new InvalidOperationException("This AudioFile is not a BARSFile").CreateExceptionDialog();
 
         var barsFile = (BarsFile)_file;
         barsFile.EntryArray.RemoveAt(index);
@@ -57,7 +58,7 @@ public class AudioFile
     public void UpdateBwavAt(int index, BwavFile newBwav)
     {
         if (!IsBarsFile)
-            throw new InvalidOperationException("This AudioFile is not a BARSFile");
+            new InvalidOperationException("This AudioFile is not a BARSFile").CreateExceptionDialog();
 
         var barsFile = (BarsFile)_file;
         var entry = barsFile.EntryArray[index];
@@ -69,7 +70,7 @@ public class AudioFile
     public void UpdateBametaAt(int index, AmtaFile newBameta)
     {
         if (!IsBarsFile)
-            throw new InvalidOperationException("This AudioFile is not a BARSFile");
+            new InvalidOperationException("This AudioFile is not a BARSFile").CreateExceptionDialog();
 
         var barsFile = (BarsFile)_file;
         var entry = barsFile.EntryArray[index];
@@ -84,7 +85,6 @@ public class AudioFile
         {
             InputFileType.Bars => BarsFile.SoftSave(AsBarsFile()),
             InputFileType.Bwav => BwavFile.Save(AsBwavFile()),
-            _ => throw new InvalidOperationException($"Unsupported file type: {Type}")
         };
     }
 
@@ -94,7 +94,6 @@ public class AudioFile
         {
             InputFileType.Bars => AsBarsFile().Header.Magic,
             InputFileType.Bwav => AsBwavFile().Header.Magic,
-            _ => throw new InvalidOperationException($"Unsupported file type: {Type}")
         };
     }
 

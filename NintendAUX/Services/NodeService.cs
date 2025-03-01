@@ -95,7 +95,8 @@ public class NodeService
                 break;
 
             default:
-                throw new ArgumentException($"Unsupported input type: {model.InputType}");
+                new ArgumentException($"Unsupported input type: {model.InputType}").CreateExceptionDialog();
+                break;
         }
 
         model.FileLoaded = true;

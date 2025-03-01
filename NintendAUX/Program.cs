@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Threading;
 using Avalonia;
+using Avalonia.Threading;
+using NintendAUX.ViewModels;
 
 namespace NintendAUX;
 

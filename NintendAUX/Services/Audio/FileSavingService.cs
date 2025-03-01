@@ -11,34 +11,13 @@ namespace NintendAUX.Services.Audio;
 
 public class FileSavingService
 {
-    // public static async Task SaveBARSFile(BARSFile barsToSave, bool compressFile)
-    // {
-    //     barsToSave.EntryArray = barsToSave.EntryArray.OrderBy(path => CRC32.Compute(path.Bamta.Path)).ToArray();
-    //     
-    //     var barsFile = await FileDialogService.SaveFile(new FilePickerSaveOptions()
-    //     {
-    //         Title = "Save BARS File",
-    //         DefaultExtension = compressFile ? "bars.zs" : "bars",
-    //         SuggestedFileName = ViewModelLocator.Model.BarsFilePath
-    //     });
-    //     
-    //     if (barsFile != null)
-    //     {
-    //         using var stream = await barsFile.OpenWriteAsync();
-    //         byte[] savedBars = BARSFile.SoftSave(barsToSave);
-    //         if (compressFile) 
-    //             savedBars = ZSTDUtils.CompressZSTDBytes(savedBars, ViewModelLocator.Model.ZsdicLoaded);
-    //         stream.Write(savedBars);
-    //         stream.Flush();
-    //     }
-    // }
     public static string GetExtensionType(bool isCompressed)
     {
         return ViewModelLocator.Model.InputType switch
         {
             InputFileType.Bars => isCompressed ? "bars.zs" : "bars",
             InputFileType.Bwav => "bwav",
-            _ => throw new NotImplementedException()
+            _ => new NotImplementedException().CreateExceptionDialog().GetAwaiter().GetResult()
         };
     }
 
@@ -48,7 +27,7 @@ public class FileSavingService
         {
             InputFileType.Bars => file => BarsFile.SoftSave(file.AsBarsFile()),
             InputFileType.Bwav => file => BwavFile.Save(file.AsBwavFile()),
-            _ => throw new ArgumentException($"Unsupported file type: {ViewModelLocator.Model.InputType}")
+            _ => new ArgumentException($"Unsupported file type: {ViewModelLocator.Model.InputType}").CreateExceptionDialog().GetAwaiter().GetResult()
         };
     }
 

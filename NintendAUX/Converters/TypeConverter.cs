@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
+using NintendAUX.ViewModels;
 
 namespace NintendAUX.Converters
 {
@@ -19,7 +20,8 @@ namespace NintendAUX.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            new NotImplementedException().CreateExceptionDialog();
+            return null;
         }
     }
 } 

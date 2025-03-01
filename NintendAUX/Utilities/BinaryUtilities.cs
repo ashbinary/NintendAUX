@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using NintendAUX.ViewModels;
 
 namespace NintendAUX.Utilities;
 
@@ -21,7 +22,7 @@ public static class BinaryUtilities
         {
             var read = stream.Read(buffer, offset, count - offset);
             if (read == 0)
-                throw new EndOfStreamException();
+                new EndOfStreamException().CreateExceptionDialog();
             offset += read;
         }
 

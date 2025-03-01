@@ -2,6 +2,7 @@
 using NintendAUX.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NintendAUX.Filetypes.Generic;
+using NintendAUX.Views;
 
 namespace NintendAUX.ViewModels;
 

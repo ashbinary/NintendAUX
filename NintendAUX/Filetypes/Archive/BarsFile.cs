@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using NintendAUX.Filetypes.Audio;
 using NintendAUX.Utilities;
+using NintendAUX.ViewModels;
 
 namespace NintendAUX.Filetypes.Archive;
 
@@ -30,7 +31,7 @@ public class BarsFile
 
         Header = barsReader.ReadStruct<BarsHeader>();
         if (Header.MinorVersion != 2)
-            throw new InvalidDataException("Incorrect BARS file version! Only Version 1.2 is supported.");
+            new InvalidDataException("Incorrect BARS file version! Only Version 1.2 is supported.").CreateExceptionDialog();
 
         FileHashArray = new uint[Header.FileCount];
 

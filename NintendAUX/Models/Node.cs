@@ -6,6 +6,7 @@ namespace NintendAUX.Models;
 
 public class Node
 {
+    // Base for other node classes, should not be used outside of here
     protected Node(string title, int id)
     {
         Title = title;
@@ -19,7 +20,7 @@ public class Node
     }
 
     public string Title { get; protected set; }
-    public int ID { get; set; }
+    public int ID { get; protected set; }
 }
 
 public class AMTANode : Node

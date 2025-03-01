@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using NintendAUX.ViewModels;
 
 namespace NintendAUX.Filetypes.Audio;
 
@@ -119,7 +120,7 @@ public struct BwavFile
             };
 
             if (ChannelInfoArray[i].Encoding == BwavEncoding.Opus)
-                throw new NotImplementedException("OPUS encoding is not supported!");
+                new NotImplementedException("OPUS encoding is not supported!").CreateExceptionDialog();
 
             ChannelInfoArray[i].DspAdpcmCoefficients = new short[16];
 
