@@ -34,7 +34,7 @@ jobs:
         PREVIOUS_TAG="${{ steps.previoustag.outputs.tag }}"  # Example: "v1.100.0"
         NUMERIC_PART=$(echo "$PREVIOUS_TAG" | cut -d '.' -f2)  # Gets "100"
         INCREMENTED=$((NUMERIC_PART + 1))  # 100 -> 101
-        echo "NEW_TAG=v1.${INCREMENTED}.0" >> $GITHUB_ENV
+        echo "NEW_TAG=v2.${INCREMENTED}.0" >> $GITHUB_ENV
         echo "${{ env.NEW_TAG }}" > ./src/version
       shell: bash
 
