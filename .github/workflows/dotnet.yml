@@ -35,17 +35,14 @@ jobs:
         NUMERIC_PART=$(echo "$PREVIOUS_TAG" | cut -d '.' -f2)  # Gets "100"
         INCREMENTED=$((NUMERIC_PART + 1))  # 100 -> 101
         echo "NEW_TAG=v1.${INCREMENTED}.0" >> $GITHUB_ENV
+        echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV # sure
+        echo "$NEW_TAG" > ./src/version
       shell: bash
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
-
-    - name: Create version file
-      run: |
-        echo "Building version file with version: $NEW_TAG"
-        echo "$NEW_TAG" > ./src/version
         
     - name: Restore dependencies
       run: dotnet restore
