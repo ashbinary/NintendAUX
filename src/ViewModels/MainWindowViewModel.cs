@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
 using NintendAUX.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NintendAUX.Filetypes.Generic;
@@ -17,9 +18,11 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private Node _selectedNode;
     [ObservableProperty] private bool _sortNodes;
     [ObservableProperty] private bool _zsdicLoaded;
+    [ObservableProperty] private string _version;
 
     public MainWindowViewModel()
     {
+        Version = $"NintendAUX {File.ReadAllText("version")}";
         SelectedNode = new Node();
     }
 

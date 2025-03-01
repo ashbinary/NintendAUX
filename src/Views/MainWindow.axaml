@@ -75,7 +75,7 @@
                             </Menu>
                     </DockPanel>
 
-                    <TextBlock Grid.Column="1" Text="NintendAUX v2.0.0-alpha"
+                    <TextBlock Grid.Column="1" Text="{Binding Version}"
                                IsHitTestVisible="False"
                                FontSize="14"
                                HorizontalAlignment="Center"
