@@ -41,6 +41,11 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
+
+    - name: Create version file
+      run: |
+        echo "Building version file with version: $NEW_TAG"
+        echo "$NEW_TAG" > ./src/version
         
     - name: Restore dependencies
       run: dotnet restore
@@ -50,7 +55,7 @@ jobs:
       
     - name: Zip the output folder
       run: | 
-        Compress-Archive -Path ./output/* -DestinationPath ./BARSBundler.zip
+        Compress-Archive -Path ./output/* -DestinationPath ./NintendAUX.zip
         
     - name: Create release
       uses: ncipollo/release-action@v1.14.0
@@ -58,9 +63,9 @@ jobs:
         name: ${{ env.NEW_TAG }}
         tag: ${{ env.NEW_TAG }}
         token: ${{ secrets.APPVEYOR_SECRET }}
-        artifacts: ./BARSBundler.zip 
+        artifacts: ./NintendAUX.zip 
         body: |
-          BARSBundler **requires** the [.NET Runtime 9.0](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) minimum to work! 
+          NintendAUX **requires** the [.NET Runtime 9.0](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) minimum to work! 
 
           This was built automatically by the repository!
           Current commit: `${{ github.event.head_commit.message }}`
