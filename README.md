@@ -4,11 +4,17 @@
 **NintendAUX** (pronounced /nɪnˈtɛndoʊ/) is a GUI Avalonia-based editor for various audio formats used by Nintendo EPD, specifically **BARS (Binary Audio Resource)** files and **BWAV (Binary Wave)** files. AMTA (Audio Metadata) files are partially supported aswell, but support past what exists at the moment is not planned for the future due to the complexity of the filetype.
 
 ## Current Support
+✓ = Functional
+
+? = Should work, but untested
+
+X = Known to not work
+
 |Game|Importing|Exporting|Editing|
 |:-:|:-:|:-:|:-:|
-|Splatoon 3|✓|✓ (mostly)|✓|
-|Tears of the Kingdom|X|X|X|
-|Super Mario Wonder|X|X|X|
+|Splatoon 3|✓|✓|✓|
+|Tears of the Kingdom|✓|✓|?|
+|Super Mario Wonder|?|?|?|
 |Earlier BARS Versions|X|X|X|
 
 ## Preview
