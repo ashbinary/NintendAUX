@@ -12,9 +12,10 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  create-new-build:
 
     runs-on: windows-latest
+    if: startsWith(github.event.head_commit.message, 'create:')
 
     steps:
     - name: Checkout
