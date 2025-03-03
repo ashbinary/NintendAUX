@@ -59,6 +59,11 @@ public class ConversionUtilities
 
     public static short[] Normalize(ref ResBwavChannelInfo channelInfo, short[] pcmData)
     {
+        // Normally 4,294,967,295. However, ToTK has erroneous loop points in some files larger than the size of the file????
+        // How does that even happen????
+        if ( channelInfo.LoopEnd > pcmData.Length)
+            return pcmData;
+        
         int oldLength = pcmData.Length;
         int loopLength = Convert.ToInt32(channelInfo.LoopEnd - channelInfo.LoopPointArray[0].LoopStart);
         Array.Resize(ref pcmData, pcmData.Length + loopLength);
