@@ -1,6 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using NintendAUX.Filetypes.Archive;
 using NintendAUX.Filetypes.Audio;
+using NintendAUX.Filetypes.Generic;
 
 namespace NintendAUX.Models;
 
@@ -37,12 +41,16 @@ public class AMTANode : Node
 public class BWAVNode : Node
 {
     public BwavNodeData Data;
+    private bool inBarsFile; // Context is used in order to change the context menu without making a new node
     
-    public BWAVNode(string title, int id, BwavFile.BwavHeader header, ObservableCollection<Node> channels)
+    public bool InBarsFile => inBarsFile;
+    
+    public BWAVNode(string title, int id, BwavFile.BwavHeader header, ObservableCollection<Node> channels, InputFileType ctx)
         : base(title, id)
     {
         Data = new BwavNodeData(header);
         Channels = channels;
+        inBarsFile = ctx == InputFileType.Bars ? true : false;
     }
 
     public ObservableCollection<Node>? Channels { get; }

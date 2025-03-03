@@ -50,9 +50,29 @@ public class ConversionUtilities
                 ++sourceIndex;
             }
         }
+
+        // Implement looping point and audio normalization (TODO: add removing the option to do so?)
+        pcmData = Normalize(ref channelInfo, pcmData);
         
         return pcmData;
-    } 
+    }
+
+    public static short[] Normalize(ref ResBwavChannelInfo channelInfo, short[] pcmData)
+    {
+        int oldLength = pcmData.Length;
+        int loopLength = Convert.ToInt32(channelInfo.LoopEnd - channelInfo.LoopPointArray[0].LoopStart);
+        Array.Resize(ref pcmData, pcmData.Length + loopLength);
+
+        Array.Copy(pcmData, Convert.ToInt32(channelInfo.LoopPointArray[0].LoopStart), pcmData, oldLength, loopLength);
+        
+        Span<short> span = pcmData; // span instead of array to honor shadow (and increase performance)
+        short multiplier = 2;
+
+        for (var i = 0; i < span.Length; i++)
+            span[i] *= Math.Clamp(multiplier, (short)-32768, (short)32767) ;
+        
+        return pcmData;
+    }
     
     public static WavFile CreateWavData(ref ResBwavChannelInfo channelInfo, AudioChannel[] pcmData)
     {

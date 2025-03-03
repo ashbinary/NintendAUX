@@ -105,7 +105,7 @@
                             <TextBox x:Name="RenameBox" IsVisible="False" KeyDown="HideTextBox" />
                             <TextBlock Text="{Binding Title}">
                                 <TextBlock.ContextMenu>
-                                    <ContextMenu>
+                                    <ContextMenu >
                                         <MenuItem Header="Delete Entry" Click="DeleteBARSEntry" />
                                         <MenuItem Header="Rename Entry" Click="RenameBarsEntry" />
                                     </ContextMenu>
@@ -116,9 +116,10 @@
                     <TreeDataTemplate DataType="models:BWAVNode" ItemsSource="{Binding Channels}">
                         <TextBlock Text="{Binding Title}">
                             <TextBlock.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Extract (.bwav)" Click="ExtractAsBwav" />
+                                <ContextMenu x:Name="BwavContextMenu">
+                                    <MenuItem Header="Extract (.bwav)" Click="ExtractAsBwav" IsVisible="{Binding InBarsFile}"/>
                                     <MenuItem Header="Extract (.wav)" Click="ExtractAsWav" />
+                                    <Separator />
                                     <MenuItem Header="Replace" Click="ReplaceBwav" />
                                 </ContextMenu>
                             </TextBlock.ContextMenu>
@@ -127,7 +128,7 @@
                     <TreeDataTemplate DataType="models:BWAVChannelNode">
                         <TextBlock Text="{Binding Title}">
                             <TextBlock.ContextMenu>
-                                <ContextMenu>
+                                <ContextMenu x:Name="DataContextMenu">
                                     <MenuItem Header="Extract Channel (.wav)" Click="ExtractAsWav" />
                                 </ContextMenu>
                             </TextBlock.ContextMenu>
@@ -136,7 +137,7 @@
                     <TreeDataTemplate DataType="models:BWAVStereoChannelNode" ItemsSource="{Binding Channels}">
                         <TextBlock Text="{Binding Title}">
                             <TextBlock.ContextMenu>
-                                <ContextMenu>
+                                <ContextMenu x:Name="DataContextMenu">
                                     <MenuItem Header="Extract Stereo Channel (.wav)" Click="ExtractAsWav" />
                                 </ContextMenu>
                             </TextBlock.ContextMenu>
@@ -145,7 +146,7 @@
                     <TreeDataTemplate DataType="models:AMTANode">
                         <TextBlock Text="{Binding Title}">
                             <TextBlock.ContextMenu>
-                                <ContextMenu>
+                                <ContextMenu x:Name="DataContextMenu"> 
                                     <MenuItem Header="Extract (.bameta)" Click="ExtractAsBameta" />
                                     <MenuItem Header="Replace" Click="ReplaceBameta" />
                                 </ContextMenu>

@@ -8,6 +8,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
+using Avalonia.VisualTree;
 using Avalonia.Platform.Storage;
 using NintendAUX.Filetypes.Archive;
 using NintendAUX.Filetypes.Audio;

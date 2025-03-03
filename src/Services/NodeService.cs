@@ -68,7 +68,7 @@ public class NodeService
             nodes.Add(new BARSEntryNode(sortedEntries[i].Bamta.Path, i, new ObservableCollection<Node>
             {
                 new AMTANode(i, sortedEntries[i].Bamta.Info),
-                new BWAVNode("Song (BWAV)", i, sortedEntries[i].Bwav.Header, channels)
+                new BWAVNode("Song (BWAV)", i, sortedEntries[i].Bwav.Header, channels, ViewModelLocator.Model.InputType)
             }, sortedEntries[i]));
         }
     }
@@ -77,7 +77,7 @@ public class NodeService
     {
         nodes.Clear();
         var channels = CreateChannelNodes(bwavFile.ChannelInfoArray, bwavFile.Header.IsPrefetch);
-        nodes.Add(new BWAVNode(Path.GetFileNameWithoutExtension(fileName), 0, bwavFile.Header, channels));
+        nodes.Add(new BWAVNode(Path.GetFileNameWithoutExtension(fileName), 0, bwavFile.Header, channels, ViewModelLocator.Model.InputType));
     }
 
     public static void UpdateNodeArray()

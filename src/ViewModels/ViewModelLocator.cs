@@ -10,7 +10,7 @@ namespace NintendAUX.ViewModels;
 
 public static class ViewModelLocator
 {
-    public static MainWindowViewModel Model { get; set; } = new();
+    public static MainWindowViewModel Model { get; set; } = new MainWindowViewModel();
     public static ErrorHandlerViewModel ExceptionModel { get; set; } = new();
 
     private static ErrorHandler _errorHandler { get; set; } = new();
