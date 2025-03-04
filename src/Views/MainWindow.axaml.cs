@@ -193,11 +193,7 @@ public partial class MainWindow : Window
 
     public async void AddNewNode(object? sender, RoutedEventArgs e)
     {
-        var entry = await NodeService.CreateNewEntry();
-        if (entry.BamtaOffset == 0xDEADBEEF) return;
-        // Add the new entry to the List
-        Model.InputFile.AsBarsFile().EntryArray.Add(entry);
-        NodeService.UpdateNodeArray();
+        await NodeService.CreateNewEntry();
     }
 
     public async void ReplaceBwav(object sender, RoutedEventArgs e)

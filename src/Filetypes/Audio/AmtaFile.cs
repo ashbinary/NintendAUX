@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using Avalonia.Data;
+using NintendAUX.Filetypes.Generic;
 using NintendAUX.Utilities;
+using NintendAUX.ViewModels;
 
 namespace NintendAUX.Filetypes.Audio;
 
@@ -56,6 +59,9 @@ public struct AmtaFile
         BaseAddress = amtaReader.Position;
 
         Info = amtaReader.ReadStruct<AMTAInfo>();
+
+        if (!MiscUtilities.CheckMagic(Info.Magic, InputFileType.Amta))
+            new DataValidationException("This is not an AMTA file!").CreateExceptionDialog();
 
         if (Info.MarkerOffset != 0)
         {

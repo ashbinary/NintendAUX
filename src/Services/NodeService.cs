@@ -14,19 +14,21 @@ namespace NintendAUX.Services;
 
 public class NodeService
 {
-    public static async Task<BarsFile.BarsEntry> CreateNewEntry()
+    public static async Task CreateNewEntry()
     {
         var bametaData = await EntryCreateService.CreateBameta();
         var bwavData = await EntryCreateService.CreateBwav();
 
-        if (bametaData.Info.Magic != 1096043841 || bwavData.Header.Magic != 1447122754)
-            return new BarsFile.BarsEntry { BamtaOffset = 0xDEADBEEF }; //null check!
+        if (!MiscUtilities.CheckMagic(bametaData.Info.Magic, InputFileType.Amta) || 
+            !MiscUtilities.CheckMagic(bwavData.Header.Magic, InputFileType.Bwav))
+            return;
 
         var newEntry = new BarsFile.BarsEntry();
         newEntry.Bamta = bametaData;
         newEntry.Bwav = bwavData;
 
-        return newEntry;
+        ViewModelLocator.Model.InputFile.AsBarsFile().EntryArray.Add(newEntry);
+        UpdateNodeArray();
     }
 
     private static ObservableCollection<Node> CreateChannelNodes(
