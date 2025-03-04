@@ -14,16 +14,6 @@ public static class MiscUtilities
     private static byte[] SARCHeader => [0x53, 0x41, 0x52, 0x43];
     private static byte[] ZSDicHeader => [0x37, 0xA4, 0x30, 0xEC];
 
-    public static uint Hash(string str, uint key)
-    {
-        var bytes = Encoding.UTF8.GetBytes(str);
-
-        uint hash = 0;
-        foreach (var b in bytes) hash = hash * key + b;
-
-        return hash;
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ToHexString(this byte[]? data)
     {
@@ -34,12 +24,7 @@ public static class MiscUtilities
     public static string ToHexString(this byte[]? data, bool prefix)
     {
         if (data is null) return string.Empty;
-
-#if NET5_0_OR_GREATER
         var result = Convert.ToHexString(data);
-#else
-        var result = BitConverter.ToString(data).Replace("-", string.Empty);
-#endif
 
         if (prefix && result.Length > 0) return "0x" + result;
         return result;
@@ -68,6 +53,16 @@ public static class MiscUtilities
             InputFileType.ZsDic => magic.SequenceEqual(ZSDicHeader),
             _ => false
         };
+    }
+    
+    public static byte[] ToByteArray(this short[] shortArray)
+    {
+        if (shortArray == null) 
+            throw new ArgumentNullException(nameof(shortArray));
+
+        byte[] byteArray = new byte[shortArray.Length * sizeof(short)];
+        Buffer.BlockCopy(shortArray, 0, byteArray, 0, byteArray.Length);
+        return byteArray;
     }
 
     public static bool CheckMagic(uint magic, InputFileType fileType)

@@ -52,10 +52,12 @@
                             <Menu DockPanel.Dock="Top">
                                 <MenuItem Header="_File" FontSize="14">
                                     <MenuItem Header="_Open..." Click="OpenFile" FontSize="13"/>
-                                    <MenuItem Header="_Save File" FontSize="13" Click="SaveDecompressedFile" 
-                                              IsEnabled="{Binding FileLoaded}" />
-                                    <MenuItem Header="_Save (Compressed)" FontSize="13" Click="SaveCompressedFile"
-                                              IsEnabled="{Binding ArchiveLoaded}" />
+                                    <MenuItem Header="_Save As...">
+                                        <MenuItem Header="_Decompressed File" FontSize="13" Click="SaveDecompressedFile" 
+                                                  IsEnabled="{Binding FileLoaded}" />
+                                        <MenuItem Header="_Compressed File (ZSTD)" FontSize="13" Click="SaveCompressedFile"
+                                                  IsEnabled="{Binding ArchiveLoaded}" />
+                                    </MenuItem>
                                     <Separator />
                                     <MenuItem Header="_Exit" FontSize="13" Click="ExitApplication" />
                                 </MenuItem>

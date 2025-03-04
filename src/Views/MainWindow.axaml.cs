@@ -231,9 +231,9 @@ public partial class MainWindow : Window
 
         Task<AudioChannel[]> audioData = Model.SelectedNode switch
         {
-            BWAVNode node => PcmService.DecodeChannels(bwavFile.ChannelInfoArray),
-            BWAVStereoChannelNode stereoNode => PcmService.DecodeChannels(bwavFile.ChannelInfoArray[selectedId..(selectedId + 2)]),
-            BWAVChannelNode channelNode => PcmService.DecodeMonoChannel(bwavFile.ChannelInfoArray[selectedId]),
+            BWAVNode => PcmService.DecodeChannels(bwavFile.ChannelInfoArray),
+            BWAVStereoChannelNode => PcmService.DecodeChannels(bwavFile.ChannelInfoArray[selectedId..(selectedId + 2)]),
+            BWAVChannelNode => PcmService.DecodeMonoChannel(bwavFile.ChannelInfoArray[selectedId]),
             
         };
         
