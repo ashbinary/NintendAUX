@@ -2,9 +2,9 @@
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
-using NintendAUX.Filetypes.Compression;
 using NintendAUX.Filetypes.Archive;
 using NintendAUX.Filetypes.Audio;
+using NintendAUX.Filetypes.Compression;
 using NintendAUX.Filetypes.Generic;
 using NintendAUX.ViewModels;
 
@@ -12,7 +12,7 @@ namespace NintendAUX.Services.Audio;
 
 public static class FileLoadingService
 {
-    private static async Task<byte[]> LoadFileInternal(IStorageFile fileData)
+    private static async Task<byte[]> LoadFileInternal(IStorageFile? fileData)
     {
         ViewModelLocator.Model.InputFileName = fileData.Name;
 
@@ -24,7 +24,7 @@ public static class FileLoadingService
         return fileBytes;
     }
 
-    public static async Task LoadBwavFile(IStorageFile bwavFile)
+    public static async Task LoadBwavFile(IStorageFile? bwavFile)
     {
         ViewModelLocator.Model.InputType = InputFileType.Bwav;
         var bwavData = await LoadFileInternal(bwavFile);
@@ -32,7 +32,7 @@ public static class FileLoadingService
         NodeService.UpdateNodeArray();
     }
 
-    public static async Task LoadBarsFile(IStorageFile barsFile)
+    public static async Task LoadBarsFile(IStorageFile? barsFile)
     {
         Console.WriteLine("Load the file?");
         ViewModelLocator.Model.InputType = InputFileType.Bars;
@@ -41,7 +41,7 @@ public static class FileLoadingService
         NodeService.UpdateNodeArray();
     }
 
-    public static async Task LoadFile(IStorageFile fileData, InputFileType fileType)
+    public static async Task LoadFile(IStorageFile? fileData, InputFileType fileType)
     {
         // Why the fuck does this work - 2/24/25
         await (fileType switch

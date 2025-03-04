@@ -31,8 +31,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="version">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+        <None Update="version">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 </Project>

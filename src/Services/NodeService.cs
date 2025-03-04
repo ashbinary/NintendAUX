@@ -34,13 +34,14 @@ public class NodeService
     {
         var channels = new ObservableCollection<Node>();
 
-        int currentChannel = 0;
+        var currentChannel = 0;
         for (var i = 0; i < channelInfoArray.Length; i++)
         {
             if (channelInfoArray[i].ChannelPan == BwavFile.BwavChannelPan.Left &&
                 channelInfoArray[i + 1].ChannelPan == BwavFile.BwavChannelPan.Right)
             {
-                channels.Add(new BWAVStereoChannelNode(currentChannel, i, channelInfoArray[i..(i+2)], isParentPrefetch != 0));
+                channels.Add(new BWAVStereoChannelNode(currentChannel, i, channelInfoArray[i..(i + 2)],
+                    isParentPrefetch != 0));
                 i++;
             }
             else
@@ -64,7 +65,8 @@ public class NodeService
 
         for (var i = 0; i < sortedEntries.Count; i++)
         {
-            var channels = CreateChannelNodes(sortedEntries[i].Bwav.ChannelInfoArray, sortedEntries[i].Bwav.Header.IsPrefetch);
+            var channels = CreateChannelNodes(sortedEntries[i].Bwav.ChannelInfoArray,
+                sortedEntries[i].Bwav.Header.IsPrefetch);
             nodes.Add(new BARSEntryNode(sortedEntries[i].Bamta.Path, i, new ObservableCollection<Node>
             {
                 new AMTANode(i, sortedEntries[i].Bamta.Info),
@@ -77,7 +79,8 @@ public class NodeService
     {
         nodes.Clear();
         var channels = CreateChannelNodes(bwavFile.ChannelInfoArray, bwavFile.Header.IsPrefetch);
-        nodes.Add(new BWAVNode(Path.GetFileNameWithoutExtension(fileName), 0, bwavFile.Header, channels, ViewModelLocator.Model.InputType));
+        nodes.Add(new BWAVNode(Path.GetFileNameWithoutExtension(fileName), 0, bwavFile.Header, channels,
+            ViewModelLocator.Model.InputType));
     }
 
     public static void UpdateNodeArray()

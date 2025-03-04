@@ -1,9 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
-using NintendAUX.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NintendAUX.Filetypes.Generic;
-using NintendAUX.Views;
+using NintendAUX.Models;
 
 namespace NintendAUX.ViewModels;
 
@@ -17,8 +16,8 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private InputFileType _inputType;
     [ObservableProperty] private Node _selectedNode;
     [ObservableProperty] private bool _sortNodes;
-    [ObservableProperty] private bool _zsdicLoaded;
     [ObservableProperty] private string _version;
+    [ObservableProperty] private bool _zsdicLoaded;
 
     public MainWindowViewModel()
     {

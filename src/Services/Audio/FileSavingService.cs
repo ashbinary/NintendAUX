@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
-using NintendAUX.Filetypes.Compression;
 using NintendAUX.Filetypes.Archive;
 using NintendAUX.Filetypes.Audio;
+using NintendAUX.Filetypes.Compression;
 using NintendAUX.Filetypes.Generic;
 using NintendAUX.ViewModels;
 
@@ -27,7 +27,8 @@ public class FileSavingService
         {
             InputFileType.Bars => file => BarsFile.SoftSave(file.AsBarsFile()),
             InputFileType.Bwav => file => BwavFile.Save(file.AsBwavFile()),
-            _ => new ArgumentException($"Unsupported file type: {ViewModelLocator.Model.InputType}").CreateExceptionDialog().GetAwaiter().GetResult()
+            _ => new ArgumentException($"Unsupported file type: {ViewModelLocator.Model.InputType}")
+                .CreateExceptionDialog().GetAwaiter().GetResult()
         };
     }
 

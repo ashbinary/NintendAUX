@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
 using NintendAUX.Filetypes.Archive;
 using NintendAUX.Filetypes.Audio;
 using NintendAUX.Filetypes.Generic;
@@ -30,7 +27,7 @@ public class Node
 public class AMTANode : Node
 {
     public AmtaNodeData Data;
-    
+
     public AMTANode(int id, AmtaFile.AMTAInfo info)
         : base("Metadata (AMTA)", id)
     {
@@ -41,17 +38,17 @@ public class AMTANode : Node
 public class BWAVNode : Node
 {
     public BwavNodeData Data;
-    private bool inBarsFile; // Context is used in order to change the context menu without making a new node
-    
-    public bool InBarsFile => inBarsFile;
-    
-    public BWAVNode(string title, int id, BwavFile.BwavHeader header, ObservableCollection<Node> channels, InputFileType ctx)
+
+    public BWAVNode(string title, int id, BwavFile.BwavHeader header, ObservableCollection<Node> channels,
+        InputFileType ctx)
         : base(title, id)
     {
         Data = new BwavNodeData(header);
         Channels = channels;
-        inBarsFile = ctx == InputFileType.Bars ? true : false;
+        InBarsFile = ctx == InputFileType.Bars ? true : false;
     }
+
+    public bool InBarsFile { get; }
 
     public ObservableCollection<Node>? Channels { get; }
 }
@@ -59,40 +56,42 @@ public class BWAVNode : Node
 public class BWAVChannelNode : Node
 {
     public BwavChannelNodeData Data;
-    
+
     public BWAVChannelNode(int id, BwavFile.ResBwavChannelInfo channelInfo, bool isParentPrefetch)
         : base(string.Empty, id)
     {
         Title = $"Channel #{id + 1} ({channelInfo.ChannelPan})";
         Data = new BwavChannelNodeData(channelInfo, isParentPrefetch);
     }
-    
+
     public BWAVChannelNode(string title, int id, BwavFile.ResBwavChannelInfo channelInfo, bool isParentPrefetch)
         : base(title, id)
-    {   
+    {
         Data = new BwavChannelNodeData(channelInfo, isParentPrefetch);
     }
 }
 
 public class BWAVStereoChannelNode : Node
 {
-    public ObservableCollection<BWAVChannelNode>? Channels { get; }
-    
-    public BWAVStereoChannelNode(int stereoId, int channelId, BwavFile.ResBwavChannelInfo[] channelInfo, bool isParentPrefetch)
+    public BWAVStereoChannelNode(int stereoId, int channelId, BwavFile.ResBwavChannelInfo[] channelInfo,
+        bool isParentPrefetch)
     {
         Title = $"Stereo Channel #{stereoId + 1}";
         ID = channelId;
         Channels = new ObservableCollection<BWAVChannelNode>();
-        
-        for (int i = 0; i < channelInfo.Length; i++)
-            Channels.Add(new BWAVChannelNode($"{channelInfo[i].ChannelPan} Channel", channelId + i, channelInfo[i], isParentPrefetch));
+
+        for (var i = 0; i < channelInfo.Length; i++)
+            Channels.Add(new BWAVChannelNode($"{channelInfo[i].ChannelPan} Channel", channelId + i, channelInfo[i],
+                isParentPrefetch));
     }
+
+    public ObservableCollection<BWAVChannelNode>? Channels { get; }
 }
 
 public class BARSEntryNode : Node
 {
     public BarsEntryNodeData Data;
-    
+
     public BARSEntryNode(string title, int id, ObservableCollection<Node>? subNodes, BarsFile.BarsEntry entry)
         : base(title, id)
     {

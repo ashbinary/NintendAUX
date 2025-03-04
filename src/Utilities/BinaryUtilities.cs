@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.CompilerServices;
-using NintendAUX.ViewModels;
+﻿using System.Runtime.CompilerServices;
 
 namespace NintendAUX.Utilities;
 

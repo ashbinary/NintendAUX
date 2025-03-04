@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Http.Headers;
 using NintendAUX.Filetypes.Archive;
 using NintendAUX.Filetypes.Audio;
 
@@ -19,8 +18,8 @@ public class BarsEntryNodeData
 
 public class BwavNodeData
 {
-    public bool IsPrefetch;
     public ushort ChannelCount;
+    public bool IsPrefetch;
 
     public BwavNodeData(BwavFile.BwavHeader header)
     {
@@ -31,20 +30,20 @@ public class BwavNodeData
 
 public class BwavChannelNodeData
 {
-    public BwavFile.BwavEncoding Encoding;
     public BwavFile.BwavChannelPan ChannelPan;
-    
-    public uint SampleRate;
-    public int SampleCount;
-    
-    public ushort LoopStart;
+    public BwavFile.BwavEncoding Encoding;
     public uint LoopEnd;
+
+    public ushort LoopStart;
+    public int SampleCount;
+
+    public uint SampleRate;
 
     public BwavChannelNodeData(BwavFile.ResBwavChannelInfo channelInfo, bool isPrefetch)
     {
         Encoding = channelInfo.Encoding;
         ChannelPan = channelInfo.ChannelPan;
-        
+
         SampleRate = channelInfo.SampleRate;
         SampleCount = isPrefetch ? channelInfo.SampleCount : Convert.ToInt32(channelInfo.NonPrefetchSampleCount);
 
@@ -59,9 +58,9 @@ public class AmtaNodeData
     public string DataOffset;
     public string MarkerOffset;
     public string MinfOffset;
-    public string TagOffset;
-    
+
     public int SourceCount;
+    public string TagOffset;
 
     public AmtaNodeData(AmtaFile.AMTAInfo info)
     {

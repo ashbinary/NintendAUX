@@ -76,7 +76,7 @@ public struct BwavFile
         public readonly int AlignedSampleSize => SampleCount / 14 * 8;
 
         public readonly int UnalignedSampleSize =>
-            SampleCount % 14 == 0 ? 0 : ((SampleCount % 14 + 1) / 2) + (SampleCount % 2);
+            SampleCount % 14 == 0 ? 0 : (SampleCount % 14 + 1) / 2 + SampleCount % 2;
 
         public byte[] OSamples;
         public ResOpusHeader OOpus;
@@ -142,14 +142,13 @@ public struct BwavFile
                     AdpcmHistoryArray = [bwavReader.ReadInt16(), bwavReader.ReadInt16()],
                     Reserve0 = bwavReader.ReadUInt16()
                 };
-            
-            
+
 
             ChannelInfoArray[i].OSamples =
                 new byte[ChannelInfoArray[i].AlignedSampleSize + ChannelInfoArray[i].UnalignedSampleSize];
             bwavReader.Position = FileBase + ChannelInfoArray[i].SamplesOffset - Marshal.SizeOf<BwavHeader>();
             ChannelInfoArray[i].OSamples = bwavReader.ReadBytes(ChannelInfoArray[i].OSamples.Length);
-            
+
             bwavReader.Position = FileBase + (i + 1) * 76;
         }
     }
@@ -205,7 +204,7 @@ public struct BwavFile
 
             // bwavPosition = bwavWriter.Position;
             //
-            if (channelInfo.Encoding == BwavEncoding.Opus) 
+            if (channelInfo.Encoding == BwavEncoding.Opus)
                 throw new NotImplementedException("OPUS encoding is not supported!");
             //
             // // To-do: Support OPUS
@@ -216,7 +215,7 @@ public struct BwavFile
         }
 
         var offsetIndex = 0;
-        
+
         bwavWriter.Align(0x40);
 
         foreach (var channelInfo in bwavData.ChannelInfoArray)

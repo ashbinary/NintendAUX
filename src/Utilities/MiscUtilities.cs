@@ -54,13 +54,13 @@ public static class MiscUtilities
             _ => false
         };
     }
-    
+
     public static byte[] ToByteArray(this short[] shortArray)
     {
-        if (shortArray == null) 
+        if (shortArray == null)
             throw new ArgumentNullException(nameof(shortArray));
 
-        byte[] byteArray = new byte[shortArray.Length * sizeof(short)];
+        var byteArray = new byte[shortArray.Length * sizeof(short)];
         Buffer.BlockCopy(shortArray, 0, byteArray, 0, byteArray.Length);
         return byteArray;
     }

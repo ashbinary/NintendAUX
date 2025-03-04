@@ -68,7 +68,7 @@ public class FileExtractService
 
         foreach (var entry in barsFile.EntryArray)
         {
-            IStorageFolder dataFolder = await extractionFolder.CreateFolderAsync(entry.Bamta.Path);
+            var dataFolder = await extractionFolder.CreateFolderAsync(entry.Bamta.Path);
             await ExtractEntry(entry, dataFolder);
         }
     }

@@ -1,7 +1,5 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:NintendAUX.ViewModels"
         Width="600" Height="200" CanResize="False"
         TransparencyLevelHint="AcrylicBlur"
@@ -9,48 +7,50 @@
         x:Class="NintendAUX.Views.ErrorHandler"
         x:DataType="viewModels:ErrorHandlerViewModel"
         Title="Error">
-        
-        <Design.DataContext>
-                <!-- This only sets the DataContext for the previewer in an IDE,
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-                <viewModels:ErrorHandlerViewModel />
-        </Design.DataContext>
-        
-        <Grid>
-                <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                
-                <Grid Margin="10, 0">
-                        <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <ExperimentalAcrylicBorder IsHitTestVisible="False">
-                                <ExperimentalAcrylicBorder.Material>
-                                        <ExperimentalAcrylicMaterial
-                                                BackgroundSource="Digger"
-                                                TintColor="Black"
-                                                TintOpacity="1"
-                                                MaterialOpacity="0.65" />
-                                </ExperimentalAcrylicBorder.Material>
-                        </ExperimentalAcrylicBorder>
-                        
-                        <Image Grid.Column="0" Width="40" Height="40" Source="avares://NintendAUX/Assets/alert_icon.png" />
-                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding ErrorText}" Margin="10, 5" FontSize="14" TextWrapping="Wrap"/>
-                        
-                        <Button Grid.Column="2" HorizontalAlignment="Right" CornerRadius="5" Margin="0,35,0,0" Click="ExportStackTrace">
-                                Export Stack Trace
-                        </Button>
-                </Grid>
-                
-                <Border BorderBrush="#808080" BorderThickness="1" Margin="10, 5" Grid.Row="1">
-                        <ScrollViewer>
-                                <TextBlock Text="{Binding ErrorDetail}"/>
-                        </ScrollViewer>
-                </Border>
+        <viewModels:ErrorHandlerViewModel />
+    </Design.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Margin="10, 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <ExperimentalAcrylicBorder IsHitTestVisible="False">
+                <ExperimentalAcrylicBorder.Material>
+                    <ExperimentalAcrylicMaterial
+                        BackgroundSource="Digger"
+                        TintColor="Black"
+                        TintOpacity="1"
+                        MaterialOpacity="0.65" />
+                </ExperimentalAcrylicBorder.Material>
+            </ExperimentalAcrylicBorder>
+
+            <Image Grid.Column="0" Width="40" Height="40" Source="avares://NintendAUX/Assets/alert_icon.png" />
+            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding ErrorText}" Margin="10, 5"
+                       FontSize="14" TextWrapping="Wrap" />
+
+            <Button Grid.Column="2" HorizontalAlignment="Right" CornerRadius="5" Margin="0,35,0,0"
+                    Click="ExportStackTrace">
+                Export Stack Trace
+            </Button>
         </Grid>
+
+        <Border BorderBrush="#808080" BorderThickness="1" Margin="10, 5" Grid.Row="1">
+            <ScrollViewer>
+                <TextBlock Text="{Binding ErrorDetail}" />
+            </ScrollViewer>
+        </Border>
+    </Grid>
 </Window>

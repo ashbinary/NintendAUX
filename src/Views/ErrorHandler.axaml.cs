@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using NintendAUX.Services;
 using NintendAUX.ViewModels;
@@ -18,9 +16,9 @@ public partial class ErrorHandler : Window
     {
         InitializeComponent();
         DataContext = ViewModelLocator.ExceptionModel;
-        this.Closing += OnExit;
+        Closing += OnExit;
     }
-    
+
     private static void OnExit(object? sender, WindowClosingEventArgs e)
     {
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopApp)
@@ -33,7 +31,7 @@ public partial class ErrorHandler : Window
     public async void ExportStackTrace(object? sender, RoutedEventArgs e)
     {
         var stackTraceFile = await FileDialogService.SaveFile(
-            new FilePickerSaveOptions()
+            new FilePickerSaveOptions
             {
                 Title = "Save Stack Trace",
                 DefaultExtension = "log",
@@ -42,7 +40,7 @@ public partial class ErrorHandler : Window
         );
 
         if (stackTraceFile == null) return;
-        
+
         await File.WriteAllTextAsync(stackTraceFile.Path.LocalPath, ViewModelLocator.ExceptionModel.ErrorDetail);
     }
 }

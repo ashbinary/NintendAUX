@@ -3,15 +3,11 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.LogicalTree;
-using Avalonia.VisualTree;
 using Avalonia.Platform.Storage;
-using NintendAUX.Filetypes.Archive;
 using NintendAUX.Filetypes.Audio;
 using NintendAUX.Filetypes.Generic;
 using NintendAUX.Models;
@@ -25,10 +21,8 @@ namespace NintendAUX.Views;
 
 public partial class MainWindow : Window
 {
-    private bool isEditable;
-    private int nodeIndex;
-
-    private MainWindowViewModel Model => ViewModelLocator.Model;
+    private bool _isEditable;
+    private int _nodeIndex;
 
     public MainWindow()
     {
@@ -37,17 +31,23 @@ public partial class MainWindow : Window
         AllArea.AddHandler(DragDrop.DropEvent, DragFileOn);
     }
 
+    private MainWindowViewModel Model => ViewModelLocator.Model;
+
     public void SortNodes(object sender, RoutedEventArgs e)
     {
         Model.SortNodes = true;
         NodeService.UpdateNodeArray();
     }
 
-    public async void DragFileOn(object sender, DragEventArgs e)
+    private async void DragFileOn(object? sender, DragEventArgs e)
     {
-        IStorageFile draggedFile = await 
-            StorageProvider.TryGetFileFromPathAsync(e.Data?.GetFiles()?.FirstOrDefault()?.Path.LocalPath);
-        await SetupFileData(draggedFile);
+        var pathLocalPath = e.Data?.GetFiles()?.FirstOrDefault()?.Path.LocalPath;
+        if (pathLocalPath != null)
+        {
+            var draggedFile = await
+                StorageProvider.TryGetFileFromPathAsync(pathLocalPath);
+            await SetupFileData(draggedFile);
+        }
     }
 
     public async void OpenFile(object sender, RoutedEventArgs e)
@@ -58,11 +58,11 @@ public partial class MainWindow : Window
             AllowMultiple = false,
             FileTypeFilter = [new FilePickerFileType("Sound Archives") { Patterns = ["*.bars.zs", "*.bars", "*.bwav"] }]
         });
-        
+
         await SetupFileData(inputData);
     }
 
-    private async Task SetupFileData(IStorageFile inputData)
+    private async Task SetupFileData(IStorageFile? inputData)
     {
         if (inputData is null) return;
 
@@ -75,7 +75,7 @@ public partial class MainWindow : Window
 
         await FileLoadingService.LoadFile(inputData, Model.InputType);
         NodeInfoPanel.Height = 375;
-        isEditable = true;
+        _isEditable = true;
     }
 
     public async void LoadTotkDict(object sender, RoutedEventArgs e)
@@ -93,7 +93,7 @@ public partial class MainWindow : Window
         await SaveFile(true);
     }
 
-    public async Task SaveFile(bool compressed)
+    private async Task SaveFile(bool compressed)
     {
         await FileSavingService.SaveFile(await FileDialogService.SaveFile(
                 new FilePickerSaveOptions
@@ -109,10 +109,11 @@ public partial class MainWindow : Window
     {
         if (e.Key != Key.Enter) return;
 
-        TextBox textBox = sender as TextBox;
+        var textBox = sender as TextBox;
 
         textBox.IsVisible = false;
-        SaveRenamedBarsEntry(textBox.Text);
+        if (textBox.Text != null)
+            SaveRenamedBarsEntry(textBox.Text);
         textBox.Text = null;
     }
 
@@ -132,7 +133,7 @@ public partial class MainWindow : Window
         controls.nameBlock.IsVisible = false;
     }
 
-    public void SaveRenamedBarsEntry(string newName)
+    private void SaveRenamedBarsEntry(string newName)
     {
         if (string.IsNullOrWhiteSpace(newName) || Model.SelectedNode.GetType() != typeof(BARSEntryNode)) return;
 
@@ -149,25 +150,25 @@ public partial class MainWindow : Window
         controls.nameBlock.IsVisible = true;
         controls.nameBlock.Text = newName;
 
-        var InputBars = Model.InputFile.AsBarsFile();
+        var inputBars = Model.InputFile.AsBarsFile();
 
-        if (InputBars.EntryArray != null && nodeIndex >= 0 && nodeIndex < InputBars.EntryArray.Count)
+        if (inputBars.EntryArray != null && _nodeIndex >= 0 && _nodeIndex < inputBars.EntryArray.Count)
         {
-            var entry = InputBars.EntryArray[nodeIndex];
+            var entry = inputBars.EntryArray[_nodeIndex];
             entry.Bamta.Path = newName;
-            InputBars.EntryArray[nodeIndex] = entry;
+            inputBars.EntryArray[_nodeIndex] = entry;
         }
     }
 
     public void ChangeDisplayedInfo(object? sender, SelectionChangedEventArgs e)
     {
-        if (!isEditable || !Model.FileLoaded) return;
+        if (!_isEditable || !Model.FileLoaded) return;
 
         Model.SelectedNode = TreeView.SelectedItem as Node;
         if (Model.SelectedNode == null) return;
-        
-        nodeIndex = Model.SelectedNode.ID;
-        
+
+        _nodeIndex = Model.SelectedNode.ID;
+
         // The UI will automatically update based on the type of the selected node
         // through the IsVisible bindings in the XAML
     }
@@ -177,12 +178,12 @@ public partial class MainWindow : Window
         Environment.Exit(0);
     }
 
-    public void DeleteBARSEntry(object? sender, RoutedEventArgs e)
+    public void DeleteBarsEntry(object? sender, RoutedEventArgs e)
     {
-        isEditable = false;
+        _isEditable = false;
         Model.InputFile.RemoveEntryAt(Model.SelectedNode.ID);
         NodeService.UpdateNodeArray();
-        isEditable = true;
+        _isEditable = true;
     }
 
     public async void ExtractAll(object? sender, RoutedEventArgs e)
@@ -201,12 +202,12 @@ public partial class MainWindow : Window
 
     public async void ReplaceBwav(object sender, RoutedEventArgs e)
     {
-        await EntryReplaceService.ReplaceBwav(nodeIndex);
+        await EntryReplaceService.ReplaceBwav(_nodeIndex);
     }
 
     public async void ReplaceBameta(object sender, RoutedEventArgs e)
     {
-        await EntryReplaceService.ReplaceBameta(nodeIndex);
+        await EntryReplaceService.ReplaceBameta(_nodeIndex);
     }
 
     public async void ExtractAsBwav(object? sender, RoutedEventArgs e)
@@ -216,29 +217,48 @@ public partial class MainWindow : Window
 
     public async void ExtractAsBameta(object? sender, RoutedEventArgs e)
     {
-        await FileExtractService.ExtractBametaWithDialog(Model.InputFile.AsBarsFile().EntryArray[Model.SelectedNode.ID]);
+        await FileExtractService.ExtractBametaWithDialog(Model.InputFile.AsBarsFile()
+            .EntryArray[Model.SelectedNode.ID]);
     }
-    
-    public async Task ExtractFileAsWav(BwavFile bwavFile)
+
+    private async Task ExtractFileAsWav(BwavFile bwavFile)
     {
         var selectedId = Model.SelectedNode.ID;
-        
-        var fileData = await FileDialogService.SaveFile(new FilePickerSaveOptions()
+
+        string fileName = "";
+
+        switch (Model.InputType)
         {
-            SuggestedFileName = Path.GetFileNameWithoutExtension(Model.InputFileName),
+            case InputFileType.Bars: 
+                fileName = Model.InputFile.AsBarsFile().EntryArray[selectedId].Bamta.Path;
+                break;
+            case InputFileType.Bwav:
+                fileName = Path.GetFileNameWithoutExtension(Model.InputFileName);
+                break;
+            default:
+                await new DataException("Failed input type check!").CreateExceptionDialog();
+                break;
+        }
+
+        var fileData = await FileDialogService.SaveFile(new FilePickerSaveOptions
+        {
+            SuggestedFileName = fileName,
             DefaultExtension = "wav"
         });
+        
+        if (fileData == null) return;
 
         Task<AudioChannel[]> audioData = Model.SelectedNode switch
         {
             BWAVNode => PcmService.DecodeChannels(bwavFile.ChannelInfoArray),
             BWAVStereoChannelNode => PcmService.DecodeChannels(bwavFile.ChannelInfoArray[selectedId..(selectedId + 2)]),
             BWAVChannelNode => PcmService.DecodeMonoChannel(bwavFile.ChannelInfoArray[selectedId]),
-            
+            _ => await new DataValidationException("Found illegal channel.").CreateExceptionDialog()
         };
-        
-        WavFile wavData = ConversionUtilities.CreateWavData(
-            ref bwavFile.ChannelInfoArray[Model.SelectedNode.GetType() == typeof(BWAVNode) ? 0 : selectedId], await audioData);
+
+        var wavData = ConversionUtilities.CreateWavData(
+            ref bwavFile.ChannelInfoArray[Model.SelectedNode.GetType() == typeof(BWAVNode) ? 0 : selectedId],
+            await audioData);
 
         await FileExtractService.ExtractFile(wavData, fileData, WavFile.Write);
     }

@@ -8,7 +8,7 @@ namespace NintendAUX.Services.Audio;
 public class PcmService
 {
     private static readonly ChannelPan[] ChannelPanStereo = [ChannelPan.Left, ChannelPan.Right];
-    
+
     public static async Task<short[]> DecodeChannel(BwavFile.ResBwavChannelInfo channelInfo)
     {
         return ConversionUtilities.DecodeChannel(ref channelInfo);
@@ -22,9 +22,10 @@ public class PcmService
     // TO-DO: Use channel pan properly
     public static async Task<AudioChannel[]> DecodeChannels(BwavFile.ResBwavChannelInfo[] channelInfos)
     {
-        AudioChannel[] channels = new AudioChannel[channelInfos.Length];
-        for (int i = 0; i < channelInfos.Length; i++)
-            channels[i] = new AudioChannel(ConvertFromBwav(channelInfos[i].ChannelPan), await DecodeChannel(channelInfos[i]));
+        var channels = new AudioChannel[channelInfos.Length];
+        for (var i = 0; i < channelInfos.Length; i++)
+            channels[i] = new AudioChannel(ConvertFromBwav(channelInfos[i].ChannelPan),
+                await DecodeChannel(channelInfos[i]));
         return channels;
     }
 
@@ -34,7 +35,7 @@ public class PcmService
         {
             BwavFile.BwavChannelPan.Center => ChannelPan.Center,
             BwavFile.BwavChannelPan.Left => ChannelPan.Left,
-            BwavFile.BwavChannelPan.Right => ChannelPan.Right,
+            BwavFile.BwavChannelPan.Right => ChannelPan.Right
         };
     }
 }

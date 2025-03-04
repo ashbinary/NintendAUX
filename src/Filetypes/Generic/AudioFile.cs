@@ -84,7 +84,7 @@ public class AudioFile
         return Type switch
         {
             InputFileType.Bars => BarsFile.SoftSave(AsBarsFile()),
-            InputFileType.Bwav => BwavFile.Save(AsBwavFile()),
+            InputFileType.Bwav => BwavFile.Save(AsBwavFile())
         };
     }
 
@@ -93,7 +93,7 @@ public class AudioFile
         return Type switch
         {
             InputFileType.Bars => AsBarsFile().Header.Magic,
-            InputFileType.Bwav => AsBwavFile().Header.Magic,
+            InputFileType.Bwav => AsBwavFile().Header.Magic
         };
     }
 

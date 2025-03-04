@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
@@ -33,12 +34,12 @@ public static class FileDialogService
         return null;
     }
 
-    public static async Task<IStorageFile> OpenFile(FilePickerOpenOptions options)
+    public static async Task<IStorageFile?> OpenFile(FilePickerOpenOptions options)
     {
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var storageProvider = desktop.MainWindow?.StorageProvider;
-            var files = await storageProvider.OpenFilePickerAsync(options);
+            IReadOnlyList<IStorageFile?> files = await storageProvider.OpenFilePickerAsync(options);
             if (files.Count > 0)
                 return files[0];
         }
