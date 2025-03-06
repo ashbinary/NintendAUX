@@ -75,8 +75,9 @@ public struct BwavFile
 
         public readonly int AlignedSampleSize => SampleCount / 14 * 8;
 
+        // TODO: actually figure out the math for unaligned samples
         public readonly int UnalignedSampleSize =>
-            SampleCount % 14 == 0 ? 0 : (SampleCount % 14 + 1) / 2 + SampleCount % 2;
+            SampleCount % 14 == 0 ? 0 : (SampleCount % 14 + 1) / 2 + 2;
 
         public byte[] OSamples;
         public ResOpusHeader OOpus;
@@ -226,6 +227,7 @@ public struct BwavFile
             bwavWriter.Position = curPosition;
 
             bwavWriter.Write(channelInfo.OSamples);
+            bwavWriter.Align(0x40); // This doesn't make sense?
 
             offsetIndex++;
         }
