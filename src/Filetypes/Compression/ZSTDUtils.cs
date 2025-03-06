@@ -8,7 +8,7 @@ public static class ZSTDUtils
 {
     public static Span<byte> CompressZSTD(this byte[] data, bool usesDict = false)
     {
-        using Compressor compressor = new(19);
+        using Compressor compressor = new(11);
         if (usesDict) compressor.LoadDictionary(ZSDic.ZSDicFile);
         return compressor.Wrap(data);
     }
