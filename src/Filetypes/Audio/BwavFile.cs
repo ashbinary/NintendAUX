@@ -105,6 +105,7 @@ public struct BwavFile
         );
 
         FileBase = bwavReader.Position;
+        Console.WriteLine($"{FileBase:x8}");
 
         ChannelInfoArray = new ResBwavChannelInfo[Header.ChannelCount];
 

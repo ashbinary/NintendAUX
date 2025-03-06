@@ -21,7 +21,7 @@ public static class EntryCreateService
             return new AmtaFile(await bametaFile.OpenReadAsync());
 
         return new AmtaFile();
-    }
+    }    
 
     public static async Task<BwavFile> CreateBwav()
     {

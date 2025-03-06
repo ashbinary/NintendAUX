@@ -34,6 +34,8 @@ public class FileSavingService
 
     public static async Task SaveFile(IStorageFile file, bool isCompressed)
     {
+        if (file == null) return;
+        
         var saveFunction = GetSaveFunction();
         var fileBytes = saveFunction(ViewModelLocator.Model.InputFile);
 

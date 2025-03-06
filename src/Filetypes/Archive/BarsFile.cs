@@ -103,16 +103,13 @@ public class BarsFile
         {
             offsets[a, 0] = barsWriter.Position;
             barsWriter.Write(AmtaFile.Save(barsData.EntryArray[a].Bamta));
-            barsWriter.Align(0x4);
         }
 
-        barsWriter.Align(0x20);
-
-        for (var a = 0; a < barsData.EntryArray.Count; a++)
+        for (var b = 0; b < barsData.EntryArray.Count; b++)
         {
-            offsets[a, 1] = barsWriter.Position;
-            barsWriter.Write(BwavFile.Save(barsData.EntryArray[a].Bwav));
-            //barsWriter.Align(0x4);
+            offsets[b, 1] = barsWriter.Position;
+            barsWriter.Write(BwavFile.Save(barsData.EntryArray[b].Bwav));
+            barsWriter.Align(0x40);
         }
 
         barsWriter.Position = offsetAddress;
