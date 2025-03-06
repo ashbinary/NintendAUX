@@ -66,7 +66,9 @@ public partial class MainWindow : Window
     {
         if (inputData is null) return;
 
-        Model.InputType = Path.GetExtension(inputData.Name) switch
+        string extension = Path.GetExtension(inputData.Name);
+    
+        Model.InputType = extension switch
         {
             ".bars" or ".zs" => InputFileType.Bars,
             ".bwav" => InputFileType.Bwav,
@@ -74,8 +76,12 @@ public partial class MainWindow : Window
         };
 
         await FileLoadingService.LoadFile(inputData, Model.InputType);
+
         NodeInfoPanel.Height = 375;
         _isEditable = true;
+
+        HotKeyManager.SetHotKey(CompressedSave, extension == ".zs" ? new KeyGesture(Key.S, KeyModifiers.Control) : null);
+        HotKeyManager.SetHotKey(DecompressedSave, extension != ".zs" ? new KeyGesture(Key.S, KeyModifiers.Control) : null);
     }
 
     public async void LoadTotkDict(object sender, RoutedEventArgs e)

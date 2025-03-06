@@ -53,9 +53,9 @@
                             <MenuItem Header="_File" FontSize="14">
                                 <MenuItem Header="_Open..." Click="OpenFile" FontSize="13" />
                                 <MenuItem Header="_Save As...">
-                                    <MenuItem Header="_Decompressed File" FontSize="13" Click="SaveDecompressedFile"
+                                    <MenuItem x:Name="DecompressedSave" Header="_Decompressed File" FontSize="13" Click="SaveDecompressedFile"
                                               IsEnabled="{Binding FileLoaded}" />
-                                    <MenuItem Header="_Compressed File (ZSTD)" FontSize="13" Click="SaveCompressedFile"
+                                    <MenuItem x:Name="CompressedSave" Header="_Compressed File (ZSTD)" FontSize="13" Click="SaveCompressedFile"
                                               IsEnabled="{Binding ArchiveLoaded}" />
                                 </MenuItem>
                                 <Separator />
