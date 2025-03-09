@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using NintendAUX.ViewModels;
@@ -89,7 +90,7 @@ public struct BwavFile
         public uint Magic;
         public ushort Endianess;
         public ushort Version;
-        public uint SamplesCrc32;
+        public int SamplesCrc32;
         public ushort IsPrefetch;
         public ushort ChannelCount;
     }
@@ -216,20 +217,26 @@ public struct BwavFile
         }
 
         var offsetIndex = 0;
+        long basePosition = bwavWriter.Position;
 
         bwavWriter.Align(0x40);
 
-        foreach (var channelInfo in bwavData.ChannelInfoArray)
+        for (int i = 0; i < bwavData.ChannelInfoArray.Length; i++)
         {
             var curPosition = bwavWriter.Position;
             bwavWriter.WriteAt(sampleOffsets[offsetIndex], Convert.ToInt32(curPosition));
             bwavWriter.Position = curPosition;
 
-            bwavWriter.Write(channelInfo.OSamples);
-            bwavWriter.Align(0x40); // This doesn't make sense?
+            bwavWriter.Write(bwavData.ChannelInfoArray[i].OSamples);
+
+            bwavWriter.Align(i != bwavData.Header.ChannelCount - 1 ? 0x40 : 0x4); // don't align last one
 
             offsetIndex++;
         }
+
+        //byte[] hashedData = saveStream.ToArray().Skip(Convert.ToInt32(basePosition)).ToArray();
+        
+        //bwavWriter.WriteAt(Marshal.OffsetOf<BwavHeader>("SamplesCrc32"), CRC32.Compute(hashedData));
 
 
         return saveStream.ToArray();

@@ -28,4 +28,13 @@ public class CRC32
 
         return ~crc; // Convert to signed int
     }
+    
+    public static uint Compute(byte[] input)
+    {
+        var crc = 0xFFFFFFFF;
+
+        foreach (var b in input) crc = (crc >> 8) ^ Table[(crc ^ b) & 0xFF];
+
+        return ~crc; // Convert to signed int
+    }
 }
