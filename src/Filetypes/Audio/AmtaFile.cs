@@ -183,6 +183,7 @@ public struct AmtaFile
 
             var PathAddress = amtaWriter.Position - Marshal.OffsetOf<AMTAInfo>("PathOffset");
             amtaWriter.Write(amtaData.Path);
+            amtaWriter.Write(0x00); // Null termination
             amtaWriter.WriteAt(Marshal.OffsetOf<AMTAInfo>("PathOffset"), (uint)PathAddress);
 
             for (var i = 0; i < markerNameOffsets.Count; i++)
@@ -196,7 +197,10 @@ public struct AmtaFile
             // Since no marker table means this is the last thing in the file we're good just adding this at a hard offset
             amtaWriter.Position = amtaData.Info.PathOffset + Marshal.OffsetOf<AMTAInfo>("PathOffset") + BaseAddress;
             amtaWriter.Write(amtaData.Path);
+            amtaWriter.Write(0x00); // Null termination
         }
+        
+        amtaWriter.WriteAt(Marshal.OffsetOf<AMTAInfo>("Size"), (uint)amtaWriter.Position);
 
         return saveStream.ToArray();
     }
