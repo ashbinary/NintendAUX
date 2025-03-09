@@ -125,6 +125,8 @@
                                     <Separator />
                                     <MenuItem Header="Replace" Click="ReplaceBwav" 
                                               IsVisible="{Binding InBarsFile}" />
+                                    <MenuItem Header="Replace as Prefetch" Click="SlicePrefetchBwav" 
+                                              IsVisible="{Binding InBarsFile}" />
                                 </ContextMenu>
                             </TextBlock.ContextMenu>
                         </TextBlock>

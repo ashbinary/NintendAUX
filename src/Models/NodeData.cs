@@ -24,7 +24,7 @@ public class BwavNodeData
     public BwavNodeData(BwavFile.BwavHeader header)
     {
         ChannelCount = header.ChannelCount;
-        IsPrefetch = header.IsPrefetch == 0 ? true : false;
+        IsPrefetch = header.IsPrefetch == 1 ? true : false;
     }
 }
 

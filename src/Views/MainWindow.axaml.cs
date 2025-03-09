@@ -206,6 +206,11 @@ public partial class MainWindow : Window
     {
         await EntryReplaceService.ReplaceBwav(_nodeIndex);
     }
+    
+    public async void SlicePrefetchBwav(object sender, RoutedEventArgs e)
+    {
+        await EntryReplaceService.ReplacePrefetch(_nodeIndex);
+    }
 
     public async void ReplaceBameta(object sender, RoutedEventArgs e)
     {
