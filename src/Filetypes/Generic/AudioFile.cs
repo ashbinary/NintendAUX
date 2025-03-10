@@ -1,6 +1,7 @@
 using System;
 using NintendAUX.Filetypes.Archive;
 using NintendAUX.Filetypes.Audio;
+using NintendAUX.Services;
 using NintendAUX.ViewModels;
 
 namespace NintendAUX.Filetypes.Generic;
@@ -65,6 +66,8 @@ public class AudioFile
         entry.Bwav = newBwav;
         barsFile.EntryArray[index] = entry;
         _file = barsFile;
+        
+        NodeService.UpdateNodeArray();
     }
 
     public void UpdateBametaAt(int index, AmtaFile newBameta)
@@ -77,6 +80,8 @@ public class AudioFile
         entry.Bamta = newBameta;
         barsFile.EntryArray[index] = entry;
         _file = barsFile;
+        
+        NodeService.UpdateNodeArray();
     }
 
     public byte[] Save()

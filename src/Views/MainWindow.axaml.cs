@@ -254,7 +254,7 @@ public partial class MainWindow : Window
         });
         
         if (fileData == null) return;
-
+        
         Task<AudioChannel[]> audioData = Model.SelectedNode switch
         {
             BWAVNode => PcmService.DecodeChannels(bwavFile.ChannelInfoArray),
@@ -275,7 +275,7 @@ public partial class MainWindow : Window
         switch (Model.InputType)
         {
             case InputFileType.Bars:
-                await ExtractFileAsWav(Model.InputFile.AsBarsFile().EntryArray[Model.SelectedNode.ID].Bwav);
+                await ExtractFileAsWav(Model.InputFile.AsBarsFile().EntryArray[Model.SelectedNode.ID - 1].Bwav);
                 break;
             case InputFileType.Bwav:
                 await ExtractFileAsWav(Model.InputFile.AsBwavFile());

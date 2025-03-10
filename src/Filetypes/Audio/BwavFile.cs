@@ -59,7 +59,7 @@ public struct BwavFile
         public BwavEncoding Encoding;
         public BwavChannelPan ChannelPan;
         public uint SampleRate;
-        public uint NonPrefetchSampleCount;
+        public int NonPrefetchSampleCount;
         public int SampleCount;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
@@ -117,7 +117,7 @@ public struct BwavFile
                 Encoding = (BwavEncoding)bwavReader.ReadUInt16(),
                 ChannelPan = (BwavChannelPan)bwavReader.ReadUInt16(),
                 SampleRate = bwavReader.ReadUInt32(),
-                NonPrefetchSampleCount = bwavReader.ReadUInt32(),
+                NonPrefetchSampleCount = bwavReader.ReadInt32(),
                 SampleCount = bwavReader.ReadInt32()
             };
 

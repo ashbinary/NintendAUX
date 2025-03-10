@@ -23,10 +23,12 @@ public class EntryReplaceService
         // Slice it down to 0.3 seconds for accurate prefetching
         for (int channel = 0; channel < newBwav.ChannelInfoArray.Length; channel++)
         {
-            var sampleCount = Convert.ToInt32(newBwav.ChannelInfoArray[channel].SampleRate * 0.3);
+            var sampleCount = (int)(Convert.ToInt32(newBwav.ChannelInfoArray[channel].SampleRate) * 0.3);
 
             newBwav.ChannelInfoArray[channel].SampleCount = sampleCount;    
-            newBwav.ChannelInfoArray[channel].OSamples = newBwav.ChannelInfoArray[channel].OSamples[0..(sampleCount - 1)];
+            newBwav.ChannelInfoArray[channel].NonPrefetchSampleCount = sampleCount;
+            
+            newBwav.ChannelInfoArray[channel].OSamples = newBwav.ChannelInfoArray[channel].OSamples[..sampleCount];
         }
         
         if (MiscUtilities.CheckMagic(newBwav.Header.Magic, InputFileType.Bwav))
