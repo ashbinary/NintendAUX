@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using NintendAUX.Filetypes.Audio;
 using NintendAUX.Utilities;
@@ -84,6 +85,8 @@ public class BarsFile
         var newFileCount = barsData.EntryArray.Count;
         barsWriter.WriteAt(Marshal.OffsetOf<BarsHeader>("FileCount"),
             newFileCount); // Use AMTA file amount to calculate data (cannot be dupe)
+
+        barsData.EntryArray = barsData.EntryArray.OrderBy(path => CRC32.Compute(path.Bamta.Path)).ToList();
 
         foreach (var entry in barsData.EntryArray)
             barsWriter.Write(CRC32.Compute(entry.Bamta.Path));

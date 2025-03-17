@@ -258,7 +258,7 @@ public partial class MainWindow : Window
         Task<AudioChannel[]> audioData = Model.SelectedNode switch
         {
             BWAVNode => PcmService.DecodeChannels(bwavFile.ChannelInfoArray),
-            BWAVStereoChannelNode => PcmService.DecodeChannels(bwavFile.ChannelInfoArray[selectedId..(selectedId + 2)]),
+            BWAVStereoChannelNode => PcmService.DecodeChannels(bwavFile.ChannelInfoArray[selectedId..(selectedId + 1)]),
             BWAVChannelNode => PcmService.DecodeMonoChannel(bwavFile.ChannelInfoArray[selectedId]),
             _ => await new DataValidationException("Found illegal channel.").CreateExceptionDialog()
         };
@@ -275,7 +275,7 @@ public partial class MainWindow : Window
         switch (Model.InputType)
         {
             case InputFileType.Bars:
-                await ExtractFileAsWav(Model.InputFile.AsBarsFile().EntryArray[Model.SelectedNode.ID - 1].Bwav);
+                await ExtractFileAsWav(Model.InputFile.AsBarsFile().EntryArray[Model.SelectedNode.ID].Bwav);
                 break;
             case InputFileType.Bwav:
                 await ExtractFileAsWav(Model.InputFile.AsBwavFile());

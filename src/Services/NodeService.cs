@@ -61,19 +61,19 @@ public class NodeService
     {
         nodes.Clear();
 
-        var sortedEntries = ViewModelLocator.Model.SortNodes
+        barsFile.EntryArray = ViewModelLocator.Model.SortNodes
             ? barsFile.EntryArray.OrderBy(path => path.Bamta.Path).ToList()
             : barsFile.EntryArray;
 
-        for (var i = 0; i < sortedEntries.Count; i++)
+        for (var i = 0; i < barsFile.EntryArray.Count; i++)
         {
-            var channels = CreateChannelNodes(sortedEntries[i].Bwav.ChannelInfoArray,
-                sortedEntries[i].Bwav.Header.IsPrefetch);
-            nodes.Add(new BARSEntryNode(sortedEntries[i].Bamta.Path, i, new ObservableCollection<Node>
+            var channels = CreateChannelNodes(barsFile.EntryArray[i].Bwav.ChannelInfoArray,
+                barsFile.EntryArray[i].Bwav.Header.IsPrefetch);
+            nodes.Add(new BARSEntryNode(barsFile.EntryArray[i].Bamta.Path, i, new ObservableCollection<Node>
             {
-                new AMTANode(i, sortedEntries[i].Bamta.Info),
-                new BWAVNode("Song (BWAV)", i, sortedEntries[i].Bwav.Header, channels, ViewModelLocator.Model.InputType)
-            }, sortedEntries[i]));
+                new AMTANode(i, barsFile.EntryArray[i].Bamta.Info),
+                new BWAVNode("Song (BWAV)", i, barsFile.EntryArray[i].Bwav.Header, channels, ViewModelLocator.Model.InputType)
+            }, barsFile.EntryArray[i]));
         }
     }
 
