@@ -72,7 +72,7 @@ public partial class MainWindow : Window
         {
             ".bars" or ".zs" => InputFileType.Bars,
             ".bwav" => InputFileType.Bwav,
-            _ => await new DataException("This is an invalid file!").CreateExceptionDialog()
+            _ => throw new DataException("This is an invalid file!")
         };
 
         await FileLoadingService.LoadFile(inputData, Model.InputType);
@@ -243,7 +243,7 @@ public partial class MainWindow : Window
                 fileName = Path.GetFileNameWithoutExtension(Model.InputFileName);
                 break;
             default:
-                await new DataException("Failed input type check!").CreateExceptionDialog();
+                throw new DataException("Failed input type check!");
                 break;
         }
 
@@ -260,7 +260,7 @@ public partial class MainWindow : Window
             BWAVNode => PcmService.DecodeChannels(bwavFile.ChannelInfoArray),
             BWAVStereoChannelNode => PcmService.DecodeChannels(bwavFile.ChannelInfoArray[selectedId..(selectedId + 1)]),
             BWAVChannelNode => PcmService.DecodeMonoChannel(bwavFile.ChannelInfoArray[selectedId]),
-            _ => await new DataValidationException("Found illegal channel.").CreateExceptionDialog()
+            _ => throw new DataValidationException("Found illegal channel.")
         };
 
         var wavData = ConversionUtilities.CreateWavData(
@@ -281,7 +281,7 @@ public partial class MainWindow : Window
                 await ExtractFileAsWav(Model.InputFile.AsBwavFile());
                 break;
             default:
-                await new NotImplementedException().CreateExceptionDialog();
+                throw new NotImplementedException();
                 break;
         }
     }

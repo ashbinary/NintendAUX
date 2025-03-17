@@ -61,7 +61,7 @@ public struct AmtaFile
         Info = amtaReader.ReadStruct<AMTAInfo>();
 
         if (!MiscUtilities.CheckMagic(Info.Magic, InputFileType.Amta))
-            new DataValidationException("This is not an AMTA file!").CreateExceptionDialog();
+            throw new DataValidationException("This is not an AMTA file!");
 
         if (Info.MarkerOffset != 0)
         {

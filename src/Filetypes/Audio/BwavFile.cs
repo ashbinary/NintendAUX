@@ -122,7 +122,7 @@ public struct BwavFile
             };
 
             if (ChannelInfoArray[i].Encoding == BwavEncoding.Opus)
-                new NotImplementedException("OPUS encoding is not supported!").CreateExceptionDialog();
+                throw new NotImplementedException("OPUS encoding is not supported!");
 
             ChannelInfoArray[i].DspAdpcmCoefficients = new short[16];
 

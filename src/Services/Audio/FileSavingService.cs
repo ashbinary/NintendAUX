@@ -17,7 +17,7 @@ public class FileSavingService
         {
             InputFileType.Bars => isCompressed ? "bars.zs" : "bars",
             InputFileType.Bwav => "bwav",
-            _ => new NotImplementedException().CreateExceptionDialog().GetAwaiter().GetResult()
+            _ => throw new NotImplementedException()
         };
     }
 
@@ -27,8 +27,7 @@ public class FileSavingService
         {
             InputFileType.Bars => file => BarsFile.SoftSave(file.AsBarsFile()),
             InputFileType.Bwav => file => BwavFile.Save(file.AsBwavFile()),
-            _ => new ArgumentException($"Unsupported file type: {ViewModelLocator.Model.InputType}")
-                .CreateExceptionDialog().GetAwaiter().GetResult()
+            _ => throw new ArgumentException($"Unsupported file type: {ViewModelLocator.Model.InputType}")
         };
     }
 

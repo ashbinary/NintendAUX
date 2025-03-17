@@ -100,7 +100,7 @@ public class NodeService
                 break;
 
             default:
-                new ArgumentException($"Unsupported input type: {model.InputType}").CreateExceptionDialog();
+                throw new ArgumentException($"Unsupported input type: {model.InputType}");
                 break;
         }
 

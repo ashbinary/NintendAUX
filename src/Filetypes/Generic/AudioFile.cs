@@ -33,7 +33,7 @@ public class AudioFile
     public BarsFile AsBarsFile()
     {
         if (!IsBarsFile)
-            new InvalidOperationException("This AudioFile is not a BARSFile").CreateExceptionDialog();
+            throw new InvalidOperationException("This AudioFile is not a BARSFile");
 
         return (BarsFile)_file;
     }
@@ -41,7 +41,7 @@ public class AudioFile
     public BwavFile AsBwavFile()
     {
         if (!IsBwavFile)
-            new InvalidOperationException("This AudioFile is not a BWAVFile").CreateExceptionDialog();
+            throw new InvalidOperationException("This AudioFile is not a BWAVFile");
 
         return (BwavFile)_file;
     }
@@ -49,7 +49,7 @@ public class AudioFile
     public void RemoveEntryAt(int index)
     {
         if (!IsBarsFile)
-            new InvalidOperationException("This AudioFile is not a BARSFile").CreateExceptionDialog();
+            throw new InvalidOperationException("This AudioFile is not a BARSFile");
 
         var barsFile = (BarsFile)_file;
         barsFile.EntryArray.RemoveAt(index);
@@ -59,7 +59,7 @@ public class AudioFile
     public void UpdateBwavAt(int index, BwavFile newBwav)
     {
         if (!IsBarsFile)
-            new InvalidOperationException("This AudioFile is not a BARSFile").CreateExceptionDialog();
+            throw new InvalidOperationException("This AudioFile is not a BARSFile");
 
         var barsFile = (BarsFile)_file;
         var entry = barsFile.EntryArray[index];
@@ -73,7 +73,7 @@ public class AudioFile
     public void UpdateBametaAt(int index, AmtaFile newBameta)
     {
         if (!IsBarsFile)
-            new InvalidOperationException("This AudioFile is not a BARSFile").CreateExceptionDialog();
+            throw new InvalidOperationException("This AudioFile is not a BARSFile");
 
         var barsFile = (BarsFile)_file;
         var entry = barsFile.EntryArray[index];

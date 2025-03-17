@@ -69,7 +69,7 @@ public class NodePropertyConverter : IValueConverter
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        new NotImplementedException().CreateExceptionDialog();
+        throw new NotImplementedException();
         return null;
     }
 }

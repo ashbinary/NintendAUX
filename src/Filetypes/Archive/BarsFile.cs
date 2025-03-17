@@ -32,8 +32,7 @@ public class BarsFile
 
         Header = barsReader.ReadStruct<BarsHeader>();
         if (Header.MinorVersion != 2)
-            new InvalidDataException("Incorrect BARS file version! Only Version 1.2 is supported.")
-                .CreateExceptionDialog();
+            throw new InvalidDataException("Incorrect BARS file version! Only Version 1.2 is supported.");
 
         FileHashArray = new uint[Header.FileCount];
 
