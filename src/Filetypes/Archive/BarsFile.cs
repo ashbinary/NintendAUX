@@ -122,7 +122,8 @@ public class BarsFile
         }
 
         // Finally, save filesize after completing everything
-        barsWriter.WriteAt(Marshal.OffsetOf<BarsHeader>("FileSize"), (uint)saveStream.Length);
+        uint fileSize = (uint)saveStream.Length;
+        barsWriter.WriteAt(Marshal.OffsetOf<BarsHeader>("FileSize"), fileSize);
 
         return saveStream.ToArray();
     }
